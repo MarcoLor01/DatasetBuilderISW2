@@ -1,13 +1,14 @@
 package org.marcolore.bugginesspredictor.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class Ticket {
 
     private String key;
 
-    private LocalDate creationDate;
+    private LocalDateTime creationDate;
 
     private Release openingVersion;
 
@@ -15,12 +16,12 @@ public class Ticket {
 
     private Release injectedVersion;
 
-    private LocalDate resolutionDate;
+    private LocalDateTime resolutionDate;
 
     private ArrayList<Release> affectedReleases;
 
 
-    public Ticket(String key, LocalDate creationDate, Release openingVersion, Release fixedVersion, Release injectedVersion, LocalDate resolutionDate, ArrayList<Release> affectedReleases) {
+    public Ticket(String key, LocalDateTime creationDate, Release openingVersion, Release fixedVersion, Release injectedVersion, LocalDateTime resolutionDate, ArrayList<Release> affectedReleases) {
         this.key = key;
         this.creationDate = creationDate;
         this.openingVersion = openingVersion;
@@ -38,11 +39,11 @@ public class Ticket {
         this.key = key;
     }
 
-    public LocalDate getCreationDate() {
+    public LocalDateTime getCreationDate() {
         return creationDate;
     }
 
-    public void setCreationDate(LocalDate creationDate) {
+    public void setCreationDate(LocalDateTime creationDate) {
         this.creationDate = creationDate;
     }
 
@@ -70,11 +71,11 @@ public class Ticket {
         this.injectedVersion = injectedVersion;
     }
 
-    public LocalDate getResolutionDate() {
+    public LocalDateTime getResolutionDate() {
         return resolutionDate;
     }
 
-    public void setResolutionDate(LocalDate resolutionDate) {
+    public void setResolutionDate(LocalDateTime resolutionDate) {
         this.resolutionDate = resolutionDate;
     }
 

@@ -6,6 +6,7 @@ import org.marcolore.bugginesspredictor.model.Release;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Objects;
 
 public class ReleaseUtility {
@@ -47,11 +48,14 @@ public class ReleaseUtility {
     }
 
     public static Release getInjectedVersion(ArrayList<Release> releases){
+        Comparator.comparing(Release::getReleaseDate);
+
         if (releases.size() > 0){
             return releases.get(0);
         } else{
             return null;
         }
+
     }
 
 }

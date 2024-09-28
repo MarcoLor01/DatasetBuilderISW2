@@ -108,30 +108,20 @@ public class JiraExtractor {
                     injAfterOp += 1;
                 }
 
-                if (openingVersion != null) {
-                    System.out.println("Opening: " + openingVersion.getReleaseDate());
-                } else {
-                    System.out.println("Opening version is null for key: " + key);
-                }
-
-                if (fixedVersion != null) {
-                    System.out.println("Fixed:" + fixedVersion.getReleaseDate());
-                } else {
-                    System.out.println("Fixed version is null for key: " + key);
-                }
                 //Check if the ticket is valid, we want to:
                 // 1. Discard the Injected Version if it is after or equal the Opening Version
                 // 2. Discard the Ticket if the Injected Version is after or equal the Fixed Version
-                TicketUtility.checkTicketValidity(tickets, key, injectedVersion, openingVersion, fixedVersion);
-
+                TicketUtility.checkTicketValidityAndCreate(tickets, key, injectedVersion, openingVersion, fixedVersion, creationDate, resolutionDate, affectedReleases);
             }
 
         }while (i < total);
+
         System.out.println("\n Op == Fix: " + equalDate);
         System.out.println("\n Op != Fix: " + notEqualDate);
         System.out.println("\n Op > Fix: " + opAfterFixed);
-        System.out.println("\n Inj == Op: " + injEqualOp);
+        System.out.println("\n Inj == Op: " + injEqualOp); // Scartere
         System.out.println("\n Inj > Op: " + injAfterOp);
+        Comparator.comparing(Ticket::getCreationDate);
         return tickets;
     }
 
