@@ -15,12 +15,6 @@ public class Main {
         JiraExtractor jiraExtractor = new JiraExtractor();
         ArrayList<Release> releases = jiraExtractor.getReleaseInfo(PROJECT_NAME);
 
-        for (Release release : releases) {
-            System.out.println("Release: " + release.getId());
-            System.out.println("Release Date: " + release.getReleaseDate());
-        }
-
-        System.out.println("Releases complete");
         ArrayList<Ticket> tickets = jiraExtractor.retrieveTickets(releases, PROJECT_NAME);
         System.out.println("Tickets complete"); //577
         System.out.println("List of tickets (number of tickets: " + tickets.size() + "):");
