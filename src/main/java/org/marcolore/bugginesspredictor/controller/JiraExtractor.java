@@ -43,14 +43,13 @@ public class JiraExtractor {
                     id = releaseJsonObject.get("id").toString();
 
                 releases.add(new Release(id, name, releaseDate));
-                System.out.printf("Release: %s\n Id: %s\n Name: %s\n", releaseDate, id, name);
             }
         }
         // Ordering releases based on the release date
         releases.sort(Comparator.comparing(Release::getReleaseDate));
         // Now we can set an id
-        for (i = 0; i < releases.size(); i++) {
-            releases.get(i).setId(++i); //First index is 1
+        for (i = 0; i < releases.size(); ++i) {
+            releases.get(i).setId(i); //First index is 1
         }
         return releases;
     }
