@@ -59,11 +59,7 @@ public class JiraExtractor {
         int j, i = 0, total;
         //Get JSON API for closed bugs w/ AV in the project
         ArrayList<Ticket> tickets = new ArrayList<>();
-        int equalDate = 0;
-        int opAfterFixed = 0;
-        int injEqualOp = 0;
-        int injAfterOp = 0;
-        int notEqualDate = 0;
+
         do {
             //Only gets a max of 1000 at a time, so must do this multiple times if bugs > 1000
             j = i + 1000;
@@ -92,35 +88,12 @@ public class JiraExtractor {
                 Release fixedVersion =  getReleaseByDate(resolutionDate, releases); //When bug is fixed
                 Release injectedVersion = getInjectedVersion(affectedReleases); //When bug is injected
 
-                if (openingVersion != null && fixedVersion != null && openingVersion.getReleaseDate().isEqual(fixedVersion.getReleaseDate())){
-                    equalDate += 1;
-                } else{
-                    notEqualDate += 1;
-                }
-                if(openingVersion != null && fixedVersion != null && openingVersion.getReleaseDate().isAfter(fixedVersion.getReleaseDate())){
-                    opAfterFixed += 1;
-                }
-                if (injectedVersion != null && openingVersion != null && injectedVersion.getReleaseDate().isEqual(openingVersion.getReleaseDate())){
-                    injEqualOp += 1;
-                }
-                if (injectedVersion != null && openingVersion != null && injectedVersion.getReleaseDate().isAfter(openingVersion.getReleaseDate())){
-                    injAfterOp += 1;
-                }
-
-                //Check if the ticket is valid, we want to:
-                // 1. Discard the Injected Version if it is after or equal the Opening Version
-                // 2. Discard the Ticket if the Injected Version is after or equal the Fixed Version
                 TicketUtility.checkTicketValidityAndCreate(tickets, key, injectedVersion, openingVersion, fixedVersion, creationDate, resolutionDate, affectedReleases);
             }
 
         }while (i < total);
 
-        System.out.println("\n Op == Fix: " + equalDate);
-        System.out.println("\n Op != Fix: " + notEqualDate);
-        System.out.println("\n Op > Fix: " + opAfterFixed);
-        System.out.println("\n Inj == Op: " + injEqualOp); // Scartere
-        System.out.println("\n Inj > Op: " + injAfterOp);
-        Comparator.comparing(Ticket::getCreationDate);
+        Comparator.comparing(Ticket::getResolutionDate);
         return tickets;
     }
 

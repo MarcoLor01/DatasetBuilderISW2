@@ -20,7 +20,11 @@ public class TicketUtility {
                 || (injectedVersion != null && injectedVersion.getReleaseDate().isAfter(openingVersion.getReleaseDate()))){
             injectedVersion = null;
         }
-        System.out.println("Aggiunto");
+
         tickets.add(new Ticket(key, creationDate, openingVersion, fixedVersion, injectedVersion, resolutionDate, affectedRelease));
+    }
+
+    public static ArrayList<Ticket> insertIV(ArrayList<Ticket> tickets) {
+        
     }
 }
