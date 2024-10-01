@@ -14,11 +14,11 @@ import java.util.Comparator;
 import static org.marcolore.bugginesspredictor.utility.JsonUtility.readJsonFromUrl;
 import static org.marcolore.bugginesspredictor.utility.ReleaseUtility.*;
 
-public class JiraExtractor {
+public class JiraController {
 
 
 
-    public JiraExtractor() {
+    public JiraController() {
     }
 
     public ArrayList<Release> getReleaseInfo(String projectName) throws IOException {

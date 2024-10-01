@@ -23,8 +23,4 @@ public class TicketUtility {
 
         tickets.add(new Ticket(key, creationDate, openingVersion, fixedVersion, injectedVersion, resolutionDate, affectedRelease));
     }
-
-    public static ArrayList<Ticket> insertIV(ArrayList<Ticket> tickets) {
-        
-    }
 }
