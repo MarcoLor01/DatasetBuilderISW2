@@ -7,11 +7,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 
 public class ReleaseUtility {
 
-    public static Release getReleaseByDate(LocalDateTime date, ArrayList<Release> releases) {
+    public static Release getReleaseByDate(LocalDateTime date, List<Release> releases) {
         for (Release release : releases) {
 
             if (!release.getReleaseDate().isBefore(date)) {
@@ -22,7 +23,7 @@ public class ReleaseUtility {
         return null;
     }
 
-    public static ArrayList<Release> getAffectedRelease(ArrayList<Release> releases, JSONArray affectedVersion) {
+    public static List<Release> getAffectedRelease(List<Release> releases, JSONArray affectedVersion) {
         ArrayList<Release> affectedRelease = new ArrayList<>();
 
         for (int i = 0; i < affectedVersion.length(); i++) {
@@ -40,7 +41,7 @@ public class ReleaseUtility {
     }
 
 
-    public static Release getInjectedVersion(ArrayList<Release> releases){
+    public static Release getInjectedVersion(List<Release> releases){
 
         if (!releases.isEmpty() && releases.get(0) != null){
             releases.sort(Comparator.comparing(Release::getReleaseDate));

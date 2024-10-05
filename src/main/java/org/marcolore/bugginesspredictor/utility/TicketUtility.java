@@ -10,7 +10,7 @@ import java.util.Objects;
 
 public class TicketUtility {
 
-    public static void checkTicketValidity(ArrayList<Ticket> tickets, ArrayList<Release> releases) {
+    public static void checkTicketValidity(List<Ticket> tickets, List<Release> releases) {
 
         tickets.removeIf(ticket -> ticket.getOpeningVersion() == null || ticket.getFixedVersion() == null
                 || (ticket.getOpeningVersion().getReleaseDate().isAfter(ticket.getFixedVersion().getReleaseDate()))
@@ -20,7 +20,7 @@ public class TicketUtility {
     }
 
 
-    public static void checkTicketValidityAndCreate(ArrayList<Ticket> tickets, String key, ArrayList<Release> releases, Release injectedVersion, Release openingVersion, Release fixedVersion, LocalDateTime creationDate, LocalDateTime resolutionDate, ArrayList<Release> affectedRelease) {
+    public static void checkTicketValidityAndCreate(List<Ticket> tickets, String key, List<Release> releases, Release injectedVersion, Release openingVersion, Release fixedVersion, LocalDateTime creationDate, LocalDateTime resolutionDate, List<Release> affectedRelease) {
 
         if ((openingVersion == null || fixedVersion == null)
                 || (openingVersion.getReleaseDate().isAfter(fixedVersion.getReleaseDate()))
@@ -38,7 +38,7 @@ public class TicketUtility {
         tickets.add(new Ticket(key, creationDate, openingVersion, fixedVersion, injectedVersion, resolutionDate, affectedRelease));
     }
 
-    public static void setAV(Ticket ticket, ArrayList<Release> releases) {
+    public static void setAV(Ticket ticket, List<Release> releases) {
         Integer injectedVersion = ticket.getInjectedVersion().getId();
         Integer fixedVersion = ticket.getFixedVersion().getId();
         ticket.setAffectedReleases(new ArrayList<>());
@@ -49,7 +49,7 @@ public class TicketUtility {
         }
     }
 
-    public static void setIV(Ticket ticketWithoutIV, ArrayList<Release> releases, float p) {
+    public static void setIV(Ticket ticketWithoutIV, List<Release> releases, float p) {
         int iv;
 
         // If OV == FV, I assume that FV-OV = 1

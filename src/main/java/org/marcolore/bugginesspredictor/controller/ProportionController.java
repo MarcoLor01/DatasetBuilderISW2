@@ -8,6 +8,7 @@ import org.marcolore.bugginesspredictor.utility.TicketUtility;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class ProportionController {
     //We define a constant, if the number of tickets with IV is < 5, we do a Cold Start
@@ -17,7 +18,7 @@ public class ProportionController {
     }
 
 
-    public static void insertIV(ArrayList<Ticket> tickets, ArrayList<Release> releases) throws IOException {
+    public static void insertIV(List<Ticket> tickets, List<Release> releases) throws IOException {
         ArrayList<Ticket> ticketWithInjectedV = new ArrayList<>();
         int i = 0, j = 0;
         float pColdStart = pColdStart();
@@ -34,7 +35,7 @@ public class ProportionController {
         }
     }
 
-    private static void calculateProportionMethod(ArrayList<Ticket> ticketsWithIV, Ticket ticketWithoutIV, ArrayList<Release> releases, float pColdStart) throws IOException {
+    private static void calculateProportionMethod(List<Ticket> ticketsWithIV, Ticket ticketWithoutIV, List<Release> releases, float pColdStart) throws IOException {
         //Calculate the proportion
         float p;
         if(ticketsWithIV.size() < COLD_START_THRESHOLD) {
@@ -48,7 +49,7 @@ public class ProportionController {
 
     }
 
-    private static float pIncrementProportion(ArrayList<Ticket> ticketsWithIV){
+    private static float pIncrementProportion(List<Ticket> ticketsWithIV){
 
         ArrayList<Float> proportionValue = new ArrayList<>();
         float pSum = 0;
@@ -85,8 +86,8 @@ public class ProportionController {
 
         for(ProjectsNames project : ProjectsNames.values()) { //We want to calculate p for all projects
             JiraController jiraController = new JiraController(project.name());
-            ArrayList<Release> releases = jiraController.getReleaseInfo(); //Get all releases
-            ArrayList<Ticket> tickets = jiraController.retrieveTickets(releases); //Get all tickets
+            List<Release> releases = jiraController.getReleaseInfo(); //Get all releases
+            List<Ticket> tickets = jiraController.retrieveTickets(releases); //Get all tickets
             int size = tickets.size();
             tickets.removeIf(ticket -> ticket.getInjectedVersion() == null); //Now we have only fixed tickets
             projectValues.add(pIncrementProportion(tickets));

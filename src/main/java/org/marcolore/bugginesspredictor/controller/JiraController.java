@@ -11,21 +11,23 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
+
 import static org.marcolore.bugginesspredictor.utility.JsonUtility.readJsonFromUrl;
 import static org.marcolore.bugginesspredictor.utility.ReleaseUtility.*;
 
 public class JiraController {
 
-    private final String ProjectName;
+    private final String projectName;
 
     public JiraController(String projectName) {
-        this.ProjectName = projectName;
+        this.projectName = projectName;
     }
 
-    public ArrayList<Release> getReleaseInfo() throws IOException {
+    public List<Release> getReleaseInfo() throws IOException {
         ArrayList<Release> releases = new ArrayList<>();
 
-        String url = "https://issues.apache.org/jira/rest/api/2/project/" + this.ProjectName;
+        String url = "https://issues.apache.org/jira/rest/api/2/project/" + this.projectName;
         JSONObject json = readJsonFromUrl(url);
         JSONArray versions = json.getJSONArray("versions");
         int i;
@@ -57,9 +59,9 @@ public class JiraController {
         return releases;
     }
 
-    public ArrayList<Ticket> retrieveTickets(ArrayList<Release> releases) throws IOException, JSONException {
+    public List<Ticket> retrieveTickets(List<Release> releases) throws IOException, JSONException {
 
-        int j, i = 0, total, numTicket=0, numTicketScartati=0;
+        int j, i = 0, total;
         //Get JSON API for closed bugs w/ AV in the project
         ArrayList<Ticket> tickets = new ArrayList<>();
 
@@ -67,7 +69,7 @@ public class JiraController {
             //Only gets a max of 1000 at a time, so must do this multiple times if bugs > 1000
             j = i + 1000;
             String url = "https://issues.apache.org/jira/rest/api/2/search?jql=project=%22"
-                    + this.ProjectName + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
+                    + this.projectName + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
                     + "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22&fields=key,resolutiondate,versions,created&startAt="
                     + i + "&maxResults=" + j;
 
@@ -76,7 +78,6 @@ public class JiraController {
             total = json.getInt("total");
 
             for (; i < total && i < j; i++) {
-                numTicket += 1;
                 //Iterate through each bug and take info
                 String key = issues.getJSONObject(i%1000).get("key").toString();
                 JSONObject fields = issues.getJSONObject(i%1000).getJSONObject("fields");
@@ -86,7 +87,7 @@ public class JiraController {
                 LocalDateTime resolutionDate = LocalDate.parse(resolutionDateString.substring(0,10)).atStartOfDay();
                 JSONArray affectedVersionJson = fields.getJSONArray("versions");
 
-                ArrayList<Release> affectedReleases = getAffectedRelease(releases, affectedVersionJson); //Check if affected version is in our list of releases
+                List<Release> affectedReleases = getAffectedRelease(releases, affectedVersionJson); //Check if affected version is in our list of releases
                 Release openingVersion = getReleaseByDate(creationDate, releases); //When bug is recognized
                 Release fixedVersion =  getReleaseByDate(resolutionDate, releases); //When bug is fixed
                 Release injectedVersion = getInjectedVersion(affectedReleases); //When bug is injected
