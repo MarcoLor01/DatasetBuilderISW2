@@ -2,8 +2,6 @@ package org.marcolore.bugginesspredictor.utility;
 
 import org.json.JSONArray;
 import org.marcolore.bugginesspredictor.model.Release;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -11,6 +9,10 @@ import java.util.List;
 import java.util.Objects;
 
 public class ReleaseUtility {
+
+    private ReleaseUtility() {
+        throw new IllegalStateException("Utility class");
+    }
 
     public static Release getReleaseByDate(LocalDateTime date, List<Release> releases) {
         for (Release release : releases) {
