@@ -2,8 +2,6 @@ package org.marcolore.bugginesspredictor.utility;
 
 import org.marcolore.bugginesspredictor.model.Release;
 import org.marcolore.bugginesspredictor.model.Ticket;
-
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
