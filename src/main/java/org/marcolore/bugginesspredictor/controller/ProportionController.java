@@ -1,9 +1,13 @@
 package org.marcolore.bugginesspredictor.controller;
 
+import org.marcolore.bugginesspredictor.enums.ProjectsNames;
 import org.marcolore.bugginesspredictor.model.Release;
 import org.marcolore.bugginesspredictor.model.Ticket;
+import org.marcolore.bugginesspredictor.utility.TicketUtility;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class ProportionController {
     //We define a constant, if the number of tickets with IV is < 5, we do a Cold Start
@@ -13,30 +17,35 @@ public class ProportionController {
     }
 
 
-    public static ArrayList<Ticket> insertIV(ArrayList<Ticket> tickets, ArrayList<Release> releases) {
+    public static void insertIV(ArrayList<Ticket> tickets, ArrayList<Release> releases) throws IOException {
         ArrayList<Ticket> ticketWithInjectedV = new ArrayList<>();
+        int i = 0, j = 0;
+        float pColdStart = pColdStart();
         for (Ticket ticket : tickets) {
             if (ticket.getInjectedVersion() != null) {
-                ticketWithInjectedV.add(ticket); //If the injected version is not null, we use
-            }                                    //the ticket for calculate the proportion
+                i++;
+                TicketUtility.setAV(ticket, releases); //Set the affected versions
+                ticketWithInjectedV.add(ticket); //If the injected version is not null, we use the ticket for calculate the proportion
+            }
             else{
-                calculateProportionMethod(ticketWithInjectedV, ticket, releases);
+                j++;
+                calculateProportionMethod(ticketWithInjectedV, ticket, releases, pColdStart);
             } //If the injected version is null, we calculate the proportion for this ticket
         }
-        return ticketWithInjectedV;
     }
 
-    private static void calculateProportionMethod(ArrayList<Ticket> ticketsWithIV, Ticket ticketWithoutIV, ArrayList<Release> releases){
+    private static void calculateProportionMethod(ArrayList<Ticket> ticketsWithIV, Ticket ticketWithoutIV, ArrayList<Release> releases, float pColdStart) throws IOException {
         //Calculate the proportion
         float p;
         if(ticketsWithIV.size() < COLD_START_THRESHOLD) {
-            p = pColdStart(); //Implement it
-
+            p = pColdStart;
         } else{
             p = pIncrementProportion(ticketsWithIV); //Now we have the medium value for p
         }
         //Now we have the p value, and we can set the injected version and the affected versions
-        System.out.println("Proportion: " + p);
+        TicketUtility.setIV(ticketWithoutIV, releases, p);
+        TicketUtility.setAV(ticketWithoutIV, releases);
+
     }
 
     private static float pIncrementProportion(ArrayList<Ticket> ticketsWithIV){
@@ -70,7 +79,34 @@ public class ProportionController {
         return (float) (fixedVersionIndex - injectedVersionIndex) / denominator;
     }
 
-    private static float pColdStart(){
-        return 0;
+    private static float pColdStart() throws IOException {
+
+        ArrayList<Float> projectValues = new ArrayList<>();
+
+        for(ProjectsNames project : ProjectsNames.values()) { //We want to calculate p for all projects
+            JiraController jiraController = new JiraController(project.name());
+            ArrayList<Release> releases = jiraController.getReleaseInfo(); //Get all releases
+            ArrayList<Ticket> tickets = jiraController.retrieveTickets(releases); //Get all tickets
+            int size = tickets.size();
+            tickets.removeIf(ticket -> ticket.getInjectedVersion() == null); //Now we have only fixed tickets
+            projectValues.add(pIncrementProportion(tickets));
+        }
+
+        if (projectValues.isEmpty()) {
+            return 0;
+        }
+
+        Collections.sort(projectValues);
+
+        int size = projectValues.size();
+        float pColdStart;
+
+        if (size % 2 == 1) {
+            pColdStart = projectValues.get(size / 2);
+        } else {
+            pColdStart = (projectValues.get((size / 2) - 1) + projectValues.get(size / 2)) / 2;
+        }
+
+        return pColdStart;
     }
 }

@@ -23,34 +23,27 @@ public class ReleaseUtility {
     }
 
     public static ArrayList<Release> getAffectedRelease(ArrayList<Release> releases, JSONArray affectedVersion) {
-            ArrayList<Release> affectedRelease = new ArrayList<>();
+        ArrayList<Release> affectedRelease = new ArrayList<>();
 
-            for(int i = 0; i < affectedVersion.length(); i++){
-                Integer versionId = Integer.parseInt(affectedVersion.getJSONObject(i).get("id").toString());
-                Release release = checkIfAffected(releases, versionId);
-                if (release != null){
+        for (int i = 0; i < affectedVersion.length(); i++) {
+            int versionId = affectedVersion.getJSONObject(i).getInt("id");
+
+            for (Release release : releases) {
+                if (Objects.equals(release.getIdRelease(), versionId)) {
                     affectedRelease.add(release);
+                    break;
                 }
             }
+        }
 
         return affectedRelease;
     }
 
-    public static Release checkIfAffected(ArrayList<Release> releases, Integer versionId) {
-        boolean affected;
-
-        for (Release release : releases) {
-            if (Objects.equals(release.getIdRelease(), versionId)) {
-                return release;
-            }
-        }
-        return null;
-    }
 
     public static Release getInjectedVersion(ArrayList<Release> releases){
-        Comparator.comparing(Release::getReleaseDate);
 
-        if (releases.size() > 0){
+        if (!releases.isEmpty() && releases.get(0) != null){
+            releases.sort(Comparator.comparing(Release::getReleaseDate));
             return releases.get(0);
         } else{
             return null;

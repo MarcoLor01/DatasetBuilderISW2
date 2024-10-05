@@ -86,4 +86,13 @@ public class Ticket {
     public void setAffectedReleases(ArrayList<Release> affectedReleases) {
         this.affectedReleases = affectedReleases;
     }
+
+    public void addAffectedReleases(Release affectedRelease) {
+        if (this.affectedReleases != null) {
+            this.affectedReleases.add(affectedRelease);
+        } else {
+            this.affectedReleases = new ArrayList<>();
+            this.affectedReleases.add(affectedRelease);
+        }
+    }
 }
