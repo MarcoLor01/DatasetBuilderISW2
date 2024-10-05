@@ -8,6 +8,10 @@ import java.util.Objects;
 
 public class TicketUtility {
 
+    private TicketUtility() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static void checkTicketValidity(List<Ticket> tickets, List<Release> releases) {
 
         tickets.removeIf(ticket -> ticket.getOpeningVersion() == null || ticket.getFixedVersion() == null
