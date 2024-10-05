@@ -15,20 +15,18 @@ public class Ticket {
 
     private Release injectedVersion;
 
-    private final LocalDateTime creationDate;
+    private LocalDateTime creationDate = LocalDateTime.MIN;
 
-    private final LocalDateTime resolutionDate;
+    private LocalDateTime resolutionDate = LocalDateTime.MIN;
 
     private List<Release> affectedReleases;
 
 
-    public Ticket(String key, LocalDateTime creationDate, Release openingVersion, Release fixedVersion, Release injectedVersion, LocalDateTime resolutionDate, List<Release> affectedReleases) {
+    public Ticket(String key, Release openingVersion, Release fixedVersion, Release injectedVersion, List<Release> affectedReleases) {
         this.key = key;
         this.openingVersion = openingVersion;
         this.fixedVersion = fixedVersion;
         this.injectedVersion = injectedVersion;
-        this.resolutionDate = resolutionDate;
-        this.creationDate = creationDate;
         this.affectedReleases = affectedReleases;
     }
 
@@ -81,4 +79,13 @@ public class Ticket {
     public LocalDateTime getCreationDate() {
         return creationDate;
     }
+
+    public void setCreationDate(LocalDateTime creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public void setResolutionDate (LocalDateTime resolutionDate) {
+        this.resolutionDate = resolutionDate;
+    }
+
 }

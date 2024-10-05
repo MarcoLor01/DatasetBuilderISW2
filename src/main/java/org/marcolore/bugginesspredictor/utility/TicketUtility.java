@@ -20,13 +20,13 @@ public class TicketUtility {
     }
 
 
-    public static void checkTicketValidityAndCreate(List<Ticket> tickets, String key, List<Release> releases, Release injectedVersion, Release openingVersion, Release fixedVersion, LocalDateTime creationDate, LocalDateTime resolutionDate, List<Release> affectedRelease) {
+    public static Ticket checkTicketValidityAndCreate(String key, List<Release> releases, Release injectedVersion, Release openingVersion, Release fixedVersion, List<Release> affectedRelease) {
 
         if ((openingVersion == null || fixedVersion == null)
                 || (openingVersion.getReleaseDate().isAfter(fixedVersion.getReleaseDate()))
                 || (openingVersion.getReleaseDate().isEqual(releases.get(0).getReleaseDate()))
                 || (openingVersion.getIdRelease().equals(releases.get(0).getIdRelease()))) {
-            return;
+            return null;
         }
 
         if (injectedVersion != null && injectedVersion.getReleaseDate().isAfter(fixedVersion.getReleaseDate())
@@ -34,8 +34,7 @@ public class TicketUtility {
             injectedVersion = null;
             affectedRelease = null;
         }
-
-        tickets.add(new Ticket(key, creationDate, openingVersion, fixedVersion, injectedVersion, resolutionDate, affectedRelease));
+        return new Ticket(key, openingVersion, fixedVersion, injectedVersion, affectedRelease);
     }
 
     public static void setAV(Ticket ticket, List<Release> releases) {

@@ -20,22 +20,19 @@ public class ProportionController {
 
     public static void insertIV(List<Ticket> tickets, List<Release> releases) throws IOException {
         ArrayList<Ticket> ticketWithInjectedV = new ArrayList<>();
-        int i = 0, j = 0;
         float pColdStart = pColdStart();
         for (Ticket ticket : tickets) {
             if (ticket.getInjectedVersion() != null) {
-                i++;
                 TicketUtility.setAV(ticket, releases); //Set the affected versions
                 ticketWithInjectedV.add(ticket); //If the injected version is not null, we use the ticket for calculate the proportion
             }
             else{
-                j++;
                 calculateProportionMethod(ticketWithInjectedV, ticket, releases, pColdStart);
             } //If the injected version is null, we calculate the proportion for this ticket
         }
     }
 
-    private static void calculateProportionMethod(List<Ticket> ticketsWithIV, Ticket ticketWithoutIV, List<Release> releases, float pColdStart) throws IOException {
+    private static void calculateProportionMethod(List<Ticket> ticketsWithIV, Ticket ticketWithoutIV, List<Release> releases, float pColdStart) {
         //Calculate the proportion
         float p;
         if(ticketsWithIV.size() < COLD_START_THRESHOLD) {
@@ -88,7 +85,6 @@ public class ProportionController {
             JiraController jiraController = new JiraController(project.name());
             List<Release> releases = jiraController.getReleaseInfo(); //Get all releases
             List<Ticket> tickets = jiraController.retrieveTickets(releases); //Get all tickets
-            int size = tickets.size();
             tickets.removeIf(ticket -> ticket.getInjectedVersion() == null); //Now we have only fixed tickets
             projectValues.add(pIncrementProportion(tickets));
         }

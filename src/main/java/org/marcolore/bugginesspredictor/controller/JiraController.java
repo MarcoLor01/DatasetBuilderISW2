@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-
 import static org.marcolore.bugginesspredictor.utility.JsonUtility.readJsonFromUrl;
 import static org.marcolore.bugginesspredictor.utility.ReleaseUtility.*;
 
@@ -61,7 +60,9 @@ public class JiraController {
 
     public List<Ticket> retrieveTickets(List<Release> releases) throws IOException, JSONException {
 
-        int j, i = 0, total;
+        int j;
+        int i = 0;
+        int total;
         //Get JSON API for closed bugs w/ AV in the project
         ArrayList<Ticket> tickets = new ArrayList<>();
 
@@ -92,7 +93,13 @@ public class JiraController {
                 Release fixedVersion =  getReleaseByDate(resolutionDate, releases); //When bug is fixed
                 Release injectedVersion = getInjectedVersion(affectedReleases); //When bug is injected
 
-                TicketUtility.checkTicketValidityAndCreate(tickets, key, releases, injectedVersion, openingVersion, fixedVersion, creationDate, resolutionDate, affectedReleases);
+                Ticket validatedTicket = TicketUtility.checkTicketValidityAndCreate(key, releases, injectedVersion,
+                                                                    openingVersion, fixedVersion, affectedReleases);
+                if (validatedTicket != null) {
+                    validatedTicket.setCreationDate(creationDate);
+                    validatedTicket.setResolutionDate(resolutionDate);
+                    tickets.add(validatedTicket);
+                }
             }
 
         }while (i < total);
