@@ -1,5 +1,7 @@
 package org.marcolore.bugginesspredictor.model;
 
+import org.eclipse.jgit.revwalk.RevCommit;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +12,7 @@ public class Ticket {
 
     private final Release openingVersion;
 
-    private final Release fixedVersion;
+    private Release fixedVersion;
 
     private Release injectedVersion;
 
@@ -18,7 +20,9 @@ public class Ticket {
 
     private LocalDateTime resolutionDate = LocalDateTime.MIN;
 
-    private List<Release> affectedReleases;
+    private List<Release> affectedReleases = new ArrayList<>();
+
+    private List<RevCommit> commitList = new ArrayList<>();
 
 
     public Ticket(String key, Release openingVersion, Release fixedVersion, Release injectedVersion, List<Release> affectedReleases) {
@@ -55,13 +59,8 @@ public class Ticket {
     }
 
     public void addAffectedReleases(Release affectedRelease) {
-        if (this.affectedReleases != null) {
-            this.affectedReleases.add(affectedRelease);
-        } else {
-            this.affectedReleases = new ArrayList<>();
-            this.affectedReleases.add(affectedRelease);
+        this.affectedReleases.add(affectedRelease);
         }
-    }
 
     public String getKey() {
         return key;
@@ -87,4 +86,15 @@ public class Ticket {
         this.resolutionDate = resolutionDate;
     }
 
+    public List<RevCommit> getCommitList() {
+        return commitList;
+    }
+
+    public void setCommitList(List<RevCommit> commitList) {
+        this.commitList = commitList;
+    }
+
+    public void setFixedVersion(Release fixedVersion) {
+        this.fixedVersion = fixedVersion;
+    }
 }

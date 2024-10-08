@@ -1,10 +1,14 @@
 package org.marcolore.bugginesspredictor.utility;
 
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.marcolore.bugginesspredictor.controller.JiraController;
 import org.marcolore.bugginesspredictor.model.Release;
 import org.marcolore.bugginesspredictor.model.Ticket;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
 
 public class TicketUtility {
 
@@ -70,6 +74,34 @@ public class TicketUtility {
 
         ticketWithoutIV.setInjectedVersion(releases.get(iv - 1));
     }
+
+    public static void linkCommitTickets(List<Ticket> tickets, List<RevCommit> commits) {
+        for (Ticket ticket : tickets) {
+            String key = ticket.getKey();
+
+            for (RevCommit commit : commits) {
+                String commitText = commit.getFullMessage();
+
+                LocalDateTime commitDate = commit.getCommitterIdent().getWhen().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                LocalDate commitLocalDate = commitDate.toLocalDate();
+
+                    if (existsLinkMessageCommit(commitText, key) && !commitLocalDate.isAfter(ticket.getResolutionDate().toLocalDate())
+                            && !commitLocalDate.isBefore(ticket.getCreationDate().toLocalDate())) {
+                        ticket.getCommitList().add(commit);
+                    }
+                }
+
+        }
+        tickets.removeIf(ticket -> ticket.getCommitList().isEmpty());
+    }
+
+    private static boolean existsLinkMessageCommit(String message, String ticketID) {
+        return message.contains(ticketID + "\n") || message.contains(ticketID + " ") || message.contains(ticketID + ":")
+                || message.contains(ticketID + ".") || message.contains(ticketID + "/") || message.endsWith(ticketID) ||
+                message.contains(ticketID + "]") || message.contains(ticketID + "_") || message.contains(ticketID + "-") || message.contains(ticketID + ")");
+    }
+
 }
+
 
 

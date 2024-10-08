@@ -1,7 +1,11 @@
 package org.marcolore.bugginesspredictor.model;
 
+import org.eclipse.jgit.revwalk.RevCommit;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Release {
 
@@ -9,6 +13,7 @@ public class Release {
     private String name;
     private LocalDateTime releaseDate;
     private int id;
+    private List<RevCommit> commitList;
 
 
     public Release(String id, String name, String releaseDate) {
@@ -48,6 +53,17 @@ public class Release {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public List<RevCommit> getCommitList() {
+        if (commitList == null){
+            commitList = new ArrayList<>();
+        }
+        return commitList;
+    }
+
+    public void setCommitList(List<RevCommit> commitList) {
+        this.commitList = commitList;
     }
 
 

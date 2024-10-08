@@ -54,4 +54,23 @@ public class ReleaseUtility {
 
     }
 
+    public static Integer matchCommitsRelease(LocalDateTime date, List<Release> releases) {
+
+        int releaseInd = 0;
+        for (int i = 0; i<releases.size(); i++){
+
+            if (date.isBefore(releases.get(i).getReleaseDate())) {
+                releaseInd = releases.get(i).getId();
+                break;
+            }
+
+            //If the commit is after the last release, associate it with the last release
+            if(date.isAfter(releases.get(releases.size()-1).getReleaseDate())) {
+                releaseInd = releases.get(releases.size()-1).getId();
+            }
+        }
+
+        return releaseInd;
+
+    }
 }
