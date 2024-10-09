@@ -1,7 +1,12 @@
 package org.marcolore.bugginesspredictor.utility;
 
 import org.json.JSONArray;
+import org.marcolore.bugginesspredictor.controller.GitController;
+import org.marcolore.bugginesspredictor.model.JavaClass;
 import org.marcolore.bugginesspredictor.model.Release;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -9,6 +14,8 @@ import java.util.List;
 import java.util.Objects;
 
 public class ReleaseUtility {
+
+    private static final Logger logger = LoggerFactory.getLogger(ReleaseUtility.class);
 
     private ReleaseUtility() {
         throw new IllegalStateException("Utility class");
@@ -73,4 +80,30 @@ public class ReleaseUtility {
         return releaseInd;
 
     }
+
+    public static List<Release> removeHalfReleases(List<Release> releases) {
+        int halfReleasesNumber = releases.size() / 2;
+        List<Release> firstHalf = new ArrayList<>();
+        for(int i=0; i< halfReleasesNumber; i++){
+            firstHalf.add(releases.get(i));
+        }
+
+        return firstHalf;
+    }
+
+    public static void checkIfNewClassTouched(List<Release> releaseList){
+
+        for(int i=0;i<releaseList.size();i++){
+            List<JavaClass> classList = releaseList.get(i).getJavaClassList();
+            if(classList.isEmpty() && i != 0){
+                releaseList.get(i).setJavaClassList(releaseList.get(i-1).getJavaClassList());
+                logger.info("Release {} have {0 class", i);
+            } else if(classList.isEmpty()) {
+                logger.error("First release have 0 class");
+            } else{
+                logger.info("Release {} have {} class", i, classList.size());
+            }
+        }
+    }
+
 }

@@ -14,7 +14,7 @@ public class Release {
     private LocalDateTime releaseDate;
     private int id;
     private List<RevCommit> commitList;
-
+    private List<JavaClass> javaClassList = new ArrayList<>();
 
     public Release(String id, String name, String releaseDate) {
         LocalDate date = LocalDate.parse(releaseDate);
@@ -66,5 +66,15 @@ public class Release {
         this.commitList = commitList;
     }
 
+    public void addJavaClass(JavaClass javaClass){
+        this.javaClassList.add(javaClass);
+    }
 
+    public List<JavaClass> getJavaClassList() {
+        return javaClassList;
+    }
+
+    public void setJavaClassList(List<JavaClass> javaClassList) {
+        this.javaClassList = javaClassList;
+    }
 }
