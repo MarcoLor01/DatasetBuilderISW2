@@ -24,9 +24,8 @@ public class Main {
 
     public static final String PROJECT_NAME = "BOOKKEEPER";
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
-
     private static String initialPath;
-
+    
     public static void main(String[] args) throws IOException, GitAPIException {
 
         takeCorrectPath();
@@ -71,10 +70,11 @@ public class Main {
         try (InputStream input = new FileInputStream("config.properties")) {
             properties.load(input);
             String pathChoice = properties.getProperty("path");
+            String basePath = properties.getProperty("base.path");
             if ("1".equals(pathChoice)) {
-                initialPath = "C:\\Users\\Utente\\";
+                initialPath = basePath + "Utente\\";
             } else if ("2".equals(pathChoice)) {
-                initialPath = "C:\\Users\\HP\\";
+                initialPath = basePath + "HP\\";
             }
 
         } catch (IOException ex) {
