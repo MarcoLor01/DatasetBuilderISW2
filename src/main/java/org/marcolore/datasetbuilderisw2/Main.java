@@ -25,8 +25,7 @@ public class Main {
     public static final String PROJECT_NAME = "BOOKKEEPER";
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
-    private static String INITIAL_PATH;
-    private static final String BASE_PATH = "C:\\Users\\";
+    private static String initialPath;
 
     public static void main(String[] args) throws IOException, GitAPIException {
 
@@ -45,7 +44,7 @@ public class Main {
         //Tickets are now both correct and complete
         logger.info("Validated {} tickets", tickets.size());
         // Setting the repo path
-        String path = INITIAL_PATH + PROJECT_NAME.toLowerCase();
+        String path = initialPath + PROJECT_NAME.toLowerCase();
         try (GitController gitController = new GitController(path)) {
 
             List<RevCommit> commitsList = gitController.getCommits(releases);
@@ -72,11 +71,10 @@ public class Main {
         try (InputStream input = new FileInputStream("config.properties")) {
             properties.load(input);
             String pathChoice = properties.getProperty("path");
-            System.out.printf(pathChoice);
             if ("1".equals(pathChoice)) {
-                INITIAL_PATH = BASE_PATH + "Utente\\";
+                initialPath = "C:\\Users\\Utente\\";
             } else if ("2".equals(pathChoice)) {
-                INITIAL_PATH = BASE_PATH + "HP\\";
+                initialPath = "C:\\Users\\HP\\";
             }
 
         } catch (IOException ex) {
