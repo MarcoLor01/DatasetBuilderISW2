@@ -11,8 +11,11 @@ import org.marcolore.datasetbuilderisw2.model.Ticket;
 import org.marcolore.datasetbuilderisw2.utility.ReleaseUtility;
 import org.marcolore.datasetbuilderisw2.utility.TicketUtility;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
+import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,10 +25,12 @@ public class Main {
     public static final String PROJECT_NAME = "BOOKKEEPER";
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
-    //private static final String initialPath = "C:\\Users\\HP\\";
-    private static final String initialPath = "C:\\Users\\Utente\\";
+    private static String INITIAL_PATH;
+    private static final String BASE_PATH = "C:\\Users\\";
 
     public static void main(String[] args) throws IOException, GitAPIException {
+
+        takeCorrectPath();
 
         JiraController jiraController = new JiraController(PROJECT_NAME);
         List<Release> releases = jiraController.getReleaseInfo(); //Get all releases
@@ -40,10 +45,10 @@ public class Main {
         //Tickets are now both correct and complete
         logger.info("Validated {} tickets", tickets.size());
         // Setting the repo path
-        String path = initialPath + PROJECT_NAME.toLowerCase();
-        try(GitController gitController = new GitController(path)) {
+        String path = INITIAL_PATH + PROJECT_NAME.toLowerCase();
+        try (GitController gitController = new GitController(path)) {
 
-            List<RevCommit> commitsList = gitController.GetCommits(releases);
+            List<RevCommit> commitsList = gitController.getCommits(releases);
             logger.info("Retrieved {} commits", commitsList.size());
             logger.info("Actual number of releases {}", releases.size());
 
@@ -61,4 +66,21 @@ public class Main {
 
     }
 
+    private static void takeCorrectPath() {
+        Properties properties = new Properties();
+
+        try (InputStream input = new FileInputStream("config.properties")) {
+            properties.load(input);
+            String pathChoice = properties.getProperty("path");
+            System.out.printf(pathChoice);
+            if ("1".equals(pathChoice)) {
+                INITIAL_PATH = BASE_PATH + "Utente\\";
+            } else if ("2".equals(pathChoice)) {
+                INITIAL_PATH = BASE_PATH + "HP\\";
+            }
+
+        } catch (IOException ex) {
+            logger.error("Error calculating path");
+        }
+    }
 }

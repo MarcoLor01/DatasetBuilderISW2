@@ -40,13 +40,13 @@ public class GitController implements AutoCloseable {
         this.git = Git.open(this.projectFile);
     }
 
-    public List<RevCommit> GetCommits(List<Release> releaseList) throws GitAPIException {
-        ArrayList<RevCommit> commitList = new ArrayList<>();
+    public List<RevCommit> getCommits(List<Release> releaseList) throws GitAPIException {
+        ArrayList<RevCommit> listOfCommit = new ArrayList<>();
 
         try {
             Iterable<RevCommit> commitIterable = git.log().all().call(); //Take all the commits
             for (RevCommit commit : commitIterable) {
-                commitList.add(commit);
+                listOfCommit.add(commit);
                 LocalDateTime commitDate = commit.getCommitterIdent().getWhen().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
                 int indexRelease = ReleaseUtility.matchCommitsRelease(commitDate, releaseList);
@@ -63,7 +63,7 @@ public class GitController implements AutoCloseable {
             for (Release release : releaseList) {
                 release.setId(++i);
             }
-            this.commitList.addAll(commitList);
+            this.commitList.addAll(listOfCommit);
         } catch(IOException e){
             logger.error("Error opening File ", e);
         }
