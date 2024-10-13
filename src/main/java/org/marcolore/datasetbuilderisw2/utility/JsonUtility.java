@@ -1,4 +1,4 @@
-package org.marcolore.bugginesspredictor.utility;
+package org.marcolore.datasetbuilderisw2.utility;
 
 import org.json.JSONException;
 import org.json.JSONObject;

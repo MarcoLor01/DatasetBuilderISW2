@@ -1,9 +1,8 @@
-package org.marcolore.bugginesspredictor.utility;
+package org.marcolore.datasetbuilderisw2.utility;
 
 import org.json.JSONArray;
-import org.marcolore.bugginesspredictor.controller.GitController;
-import org.marcolore.bugginesspredictor.model.JavaClass;
-import org.marcolore.bugginesspredictor.model.Release;
+import org.marcolore.datasetbuilderisw2.model.JavaClass;
+import org.marcolore.datasetbuilderisw2.model.Release;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,19 +1,19 @@
-package org.marcolore.bugginesspredictor.controller;
+package org.marcolore.datasetbuilderisw2.controller;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.marcolore.bugginesspredictor.model.Release;
-import org.marcolore.bugginesspredictor.model.Ticket;
-import org.marcolore.bugginesspredictor.utility.TicketUtility;
+import org.marcolore.datasetbuilderisw2.model.Release;
+import org.marcolore.datasetbuilderisw2.model.Ticket;
+import org.marcolore.datasetbuilderisw2.utility.TicketUtility;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import static org.marcolore.bugginesspredictor.utility.JsonUtility.readJsonFromUrl;
-import static org.marcolore.bugginesspredictor.utility.ReleaseUtility.*;
+import static org.marcolore.datasetbuilderisw2.utility.JsonUtility.readJsonFromUrl;
+import static org.marcolore.datasetbuilderisw2.utility.ReleaseUtility.*;
 
 public class JiraController {
 

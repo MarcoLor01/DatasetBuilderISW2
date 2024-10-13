@@ -1,4 +1,4 @@
-package org.marcolore.bugginesspredictor.enums;
+package org.marcolore.datasetbuilderisw2.enums;
 
 public enum ProjectsNames {
     AVRO,

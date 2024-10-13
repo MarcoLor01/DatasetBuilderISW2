@@ -1,9 +1,8 @@
-package org.marcolore.bugginesspredictor.utility;
+package org.marcolore.datasetbuilderisw2.utility;
 
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.marcolore.bugginesspredictor.controller.JiraController;
-import org.marcolore.bugginesspredictor.model.Release;
-import org.marcolore.bugginesspredictor.model.Ticket;
+import org.marcolore.datasetbuilderisw2.model.Release;
+import org.marcolore.datasetbuilderisw2.model.Ticket;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

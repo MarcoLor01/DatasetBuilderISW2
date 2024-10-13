@@ -1,9 +1,9 @@
-package org.marcolore.bugginesspredictor.controller;
+package org.marcolore.datasetbuilderisw2.controller;
 
-import org.marcolore.bugginesspredictor.enums.ProjectsNames;
-import org.marcolore.bugginesspredictor.model.Release;
-import org.marcolore.bugginesspredictor.model.Ticket;
-import org.marcolore.bugginesspredictor.utility.TicketUtility;
+import org.marcolore.datasetbuilderisw2.enums.ProjectsNames;
+import org.marcolore.datasetbuilderisw2.model.Release;
+import org.marcolore.datasetbuilderisw2.model.Ticket;
+import org.marcolore.datasetbuilderisw2.utility.TicketUtility;
 
 import java.io.IOException;
 import java.util.ArrayList;

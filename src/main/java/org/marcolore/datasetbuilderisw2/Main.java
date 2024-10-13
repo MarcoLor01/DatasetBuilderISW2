@@ -1,19 +1,17 @@
-package org.marcolore.bugginesspredictor;
+package org.marcolore.datasetbuilderisw2;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.marcolore.bugginesspredictor.controller.GitController;
-import org.marcolore.bugginesspredictor.controller.JiraController;
-import org.marcolore.bugginesspredictor.controller.ProportionController;
-import org.marcolore.bugginesspredictor.model.JavaClass;
-import org.marcolore.bugginesspredictor.model.Release;
-import org.marcolore.bugginesspredictor.model.Ticket;
-import org.marcolore.bugginesspredictor.utility.ReleaseUtility;
-import org.marcolore.bugginesspredictor.utility.TicketUtility;
+import org.marcolore.datasetbuilderisw2.controller.GitController;
+import org.marcolore.datasetbuilderisw2.controller.JiraController;
+import org.marcolore.datasetbuilderisw2.controller.ProportionController;
+import org.marcolore.datasetbuilderisw2.model.JavaClass;
+import org.marcolore.datasetbuilderisw2.model.Release;
+import org.marcolore.datasetbuilderisw2.model.Ticket;
+import org.marcolore.datasetbuilderisw2.utility.ReleaseUtility;
+import org.marcolore.datasetbuilderisw2.utility.TicketUtility;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -52,12 +50,9 @@ public class Main {
         logger.info("Linked commits to tickets");
         //Now we take only the first half releases
         List<Release> releaseList = ReleaseUtility.removeHalfReleases(releases);
-        for(Release release : releases) {
-            System.out.printf("Data release: %s\n", release.getReleaseDate());
-        }
         //Now we need to extract our Java classes
         List<JavaClass> javaClassList = gitController.retrieveClasses(releaseList);
-
+        //Now we need to compute the metrics
     }
 
 }

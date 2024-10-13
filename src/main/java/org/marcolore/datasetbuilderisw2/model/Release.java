@@ -1,4 +1,4 @@
-package org.marcolore.bugginesspredictor.model;
+package org.marcolore.datasetbuilderisw2.model;
 
 import org.eclipse.jgit.revwalk.RevCommit;
 

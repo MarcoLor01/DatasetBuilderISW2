@@ -1,15 +1,21 @@
-package org.marcolore.bugginesspredictor.controller;
+package org.marcolore.datasetbuilderisw2.controller;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectLoader;
+import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
-import org.marcolore.bugginesspredictor.model.JavaClass;
-import org.marcolore.bugginesspredictor.model.Release;
-import org.marcolore.bugginesspredictor.utility.ReleaseUtility;
+import org.eclipse.jgit.treewalk.filter.PathSuffixFilter;
+import org.eclipse.jgit.util.io.DisabledOutputStream;
+import org.marcolore.datasetbuilderisw2.model.JavaClass;
+import org.marcolore.datasetbuilderisw2.model.Release;
+import org.marcolore.datasetbuilderisw2.utility.ReleaseUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +27,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.marcolore.bugginesspredictor.utility.ReleaseUtility.checkIfNewClassTouched;
+import static org.marcolore.datasetbuilderisw2.utility.ReleaseUtility.checkIfNewClassTouched;
 
 public class GitController {
     File projectFile;
@@ -94,7 +100,7 @@ public class GitController {
     private JavaClass loadJavaClassFromTreeWalk(TreeWalk treeWalk, Release release, Repository repository, List<String> javaClassRelease) throws IOException {
         String filename = treeWalk.getPathString();
 
-        if (filename.endsWith(".java") && !filename.contains("/test/") && !javaClassRelease.contains(filename)) { //Excluding file not .java and the test classes
+        if (isJavaClassFile(filename) && !javaClassRelease.contains(filename)) { //Excluding file not .java and the test classes
             javaClassRelease.add(filename);
             ObjectId objectId = treeWalk.getObjectId(0);
             ObjectLoader loader = repository.open(objectId);
@@ -107,16 +113,67 @@ public class GitController {
         return null;
     }
 
-    public void associateCommitsToClass(List<JavaClass> javaClassList, List<Release> releaseList){
-        for(RevCommit commit : commitList){
-            Release commitRelease = findReleaseFromCommit(commit, releaseList);
-            List<String> touchedJavaClass = findTouchedClassFromCommit(commitRelease);
+    public void associateCommitsToClass(List<JavaClass> javaClassList, List<Release> releaseList) throws IOException {
+        for (RevCommit commit : commitList) {
+            Release commitRelease = findReleaseFromCommit(commit, releaseList); //Release of the commit
+            List<String> touchedJavaClassName = findTouchedClassFromCommit(commit); //List of the name of the touched classes by the commit
+            for (String touchedClassName : touchedJavaClassName) {
+                for (JavaClass classJava : javaClassList) {
+                    if (classJava.getRelease().equals(commitRelease)
+                            && classJava.getClassName().equals(touchedClassName)
+                            && !classJava.getListOfCommit().contains(commit)) {
+                        classJava.addCommitToList(commit);
+                    }
+                }
+            }
         }
     }
 
-    private List<String> findTouchedClassFromCommit(Release commitRelease) {
-        //Implement it
-        return null;
+
+
+    public List<String> findTouchedClassFromCommit(RevCommit commit) throws IOException {
+        List<String> touchedClassesNames = new ArrayList<>();
+
+        try (Git git = Git.open(this.projectFile);
+             Repository repository = git.getRepository();
+             ObjectReader reader = repository.newObjectReader();
+             DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
+
+            if (commit.getParentCount() == 0) {
+                return touchedClassesNames;
+            }
+
+            RevCommit commitParent = commit.getParent(0);
+            diffFormatter.setRepository(repository);
+            diffFormatter.setPathFilter(PathSuffixFilter.create(".java"));
+
+            CanonicalTreeParser newTreeIter = prepareTreeParser(reader, commit);
+            CanonicalTreeParser oldTreeIter = prepareTreeParser(reader, commitParent);
+
+            List<DiffEntry> entries = diffFormatter.scan(oldTreeIter, newTreeIter);
+
+            for (DiffEntry entry : entries) {
+                if (isJavaClassFile(entry.getNewPath())) {
+                    touchedClassesNames.add(entry.getNewPath());
+                }
+            }
+
+        } catch (IOException e) {
+            throw new IOException("Error during the opening of repository", e);
+        }
+
+        return touchedClassesNames;
+    }
+
+    private boolean isJavaClassFile(String filePath) {
+        return filePath.endsWith(".java") && !filePath.contains("/test/");
+    }
+
+    private CanonicalTreeParser prepareTreeParser(ObjectReader reader, RevCommit commit) throws IOException {
+        CanonicalTreeParser treeParser = new CanonicalTreeParser();
+        ObjectId treeId = commit.getTree(); // Ottiene l'ID dell'albero associato al commit
+        treeParser.reset(reader, treeId);   // Resetta il parser con l'albero corrispondente
+        return treeParser;
     }
 
     public Release findReleaseFromCommit(RevCommit extractedCommit, List<Release> releaseList) {
