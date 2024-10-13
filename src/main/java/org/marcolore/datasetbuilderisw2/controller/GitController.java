@@ -29,19 +29,21 @@ import java.util.List;
 
 import static org.marcolore.datasetbuilderisw2.utility.ReleaseUtility.checkIfNewClassTouched;
 
-public class GitController {
+public class GitController implements AutoCloseable {
     File projectFile;
     List<RevCommit> commitList = new ArrayList<>();
     private static final Logger logger = LoggerFactory.getLogger(GitController.class);
+    private final Git git;
 
-    public GitController(String path) {
+    public GitController(String path) throws IOException {
         this.projectFile = new File(path);
+        this.git = Git.open(this.projectFile);
     }
 
     public List<RevCommit> GetCommits(List<Release> releaseList) throws GitAPIException {
         ArrayList<RevCommit> commitList = new ArrayList<>();
 
-        try (Git git = Git.open(this.projectFile)) {
+        try {
             Iterable<RevCommit> commitIterable = git.log().all().call(); //Take all the commits
             for (RevCommit commit : commitIterable) {
                 commitList.add(commit);
@@ -62,8 +64,8 @@ public class GitController {
                 release.setId(++i);
             }
             this.commitList.addAll(commitList);
-        } catch(IOException err){
-            logger.error("Error opening File ", err);
+        } catch(IOException e){
+            logger.error("Error opening File ", e);
         }
 
         return commitList;
@@ -72,8 +74,9 @@ public class GitController {
     public List<JavaClass> retrieveClasses(List<Release> releaseList) throws IOException {
         List<JavaClass> javaClassList = new ArrayList<>();
         //Now we take the class from the commits of Releases
-        try (Git git = Git.open(this.projectFile)) {
+        try {
             for (Release release : releaseList) {
+
                 List<String> javaClassRelease = new ArrayList<>();
                 List<RevCommit> releaseCommits = release.getCommitList();
                 for (RevCommit commit : releaseCommits) {
@@ -84,20 +87,27 @@ public class GitController {
                     treeWalk.setRecursive(true); //Go in the subdirectory
                     while (treeWalk.next()) {
                         JavaClass file = loadJavaClassFromTreeWalk(treeWalk, release, repository, javaClassRelease);
-                        javaClassList.add(file);
-                        release.addJavaClass(file);
+                        if (file != null) {
+
+                            release.addJavaClass(file);
+                            javaClassList.add(file);
+                        }
                     }
                 }
             }
+        } catch (IOException e) {
+            logger.error("Error retrieving classes ", e);
         }
         //If a new release doesn't have new classes, we copy the last release classes in this
         checkIfNewClassTouched(releaseList);
         //Now we want to associate Java classes with the correct commits
         associateCommitsToClass(javaClassList, releaseList);
+
         return javaClassList;
     }
 
     private JavaClass loadJavaClassFromTreeWalk(TreeWalk treeWalk, Release release, Repository repository, List<String> javaClassRelease) throws IOException {
+
         String filename = treeWalk.getPathString();
 
         if (isJavaClassFile(filename) && !javaClassRelease.contains(filename)) { //Excluding file not .java and the test classes
@@ -107,9 +117,10 @@ public class GitController {
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             loader.copyTo(output);
             String fileContent = output.toString();
-
+            javaClassRelease.add(filename); //For duplicate
             return new JavaClass(filename, release, fileContent);
             }
+
         return null;
     }
 
@@ -134,9 +145,7 @@ public class GitController {
     public List<String> findTouchedClassFromCommit(RevCommit commit) throws IOException {
         List<String> touchedClassesNames = new ArrayList<>();
 
-        try (Git git = Git.open(this.projectFile);
-             Repository repository = git.getRepository();
-             ObjectReader reader = repository.newObjectReader();
+        try (ObjectReader reader = git.getRepository().newObjectReader();
              DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
 
             if (commit.getParentCount() == 0) {
@@ -144,7 +153,7 @@ public class GitController {
             }
 
             RevCommit commitParent = commit.getParent(0);
-            diffFormatter.setRepository(repository);
+            diffFormatter.setRepository(git.getRepository());
             diffFormatter.setPathFilter(PathSuffixFilter.create(".java"));
 
             CanonicalTreeParser newTreeIter = prepareTreeParser(reader, commit);
@@ -171,8 +180,8 @@ public class GitController {
 
     private CanonicalTreeParser prepareTreeParser(ObjectReader reader, RevCommit commit) throws IOException {
         CanonicalTreeParser treeParser = new CanonicalTreeParser();
-        ObjectId treeId = commit.getTree(); // Ottiene l'ID dell'albero associato al commit
-        treeParser.reset(reader, treeId);   // Resetta il parser con l'albero corrispondente
+        ObjectId treeId = commit.getTree();
+        treeParser.reset(reader, treeId);
         return treeParser;
     }
 
@@ -191,5 +200,11 @@ public class GitController {
         return previousRelease;
     }
 
+    @Override
+    public void close() {
+        if(git != null){
+            git.close();
+        }
+    }
 }
 

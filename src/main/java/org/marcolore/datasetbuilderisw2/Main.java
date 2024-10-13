@@ -19,8 +19,11 @@ import org.slf4j.LoggerFactory;
 
 public class Main {
 
-    public static final String PROJECT_NAME = "AVRO";
+    public static final String PROJECT_NAME = "BOOKKEEPER";
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
+
+    //private static final String initialPath = "C:\\Users\\HP\\";
+    private static final String initialPath = "C:\\Users\\Utente\\";
 
     public static void main(String[] args) throws IOException, GitAPIException {
 
@@ -36,23 +39,26 @@ public class Main {
         TicketUtility.checkTicketValidity(tickets, releases);
         //Tickets are now both correct and complete
         logger.info("Validated {} tickets", tickets.size());
-
         // Setting the repo path
-        String path = "C:\\Users\\HP\\" + PROJECT_NAME.toLowerCase();
-        GitController gitController = new GitController(path);
+        String path = initialPath + PROJECT_NAME.toLowerCase();
+        try(GitController gitController = new GitController(path)) {
 
-        List<RevCommit> commitsList = gitController.GetCommits(releases);
-        logger.info("Retrieved {} commits", commitsList.size());
-        logger.info("Actual number of releases {}", releases.size());
+            List<RevCommit> commitsList = gitController.GetCommits(releases);
+            logger.info("Retrieved {} commits", commitsList.size());
+            logger.info("Actual number of releases {}", releases.size());
 
-        // Now links the commits with the tickets
-        TicketUtility.linkCommitTickets(tickets, commitsList);
-        logger.info("Linked commits to tickets");
-        //Now we take only the first half releases
-        List<Release> releaseList = ReleaseUtility.removeHalfReleases(releases);
-        //Now we need to extract our Java classes
-        List<JavaClass> javaClassList = gitController.retrieveClasses(releaseList);
-        //Now we need to compute the metrics
+            // Now links the commits with the tickets
+            TicketUtility.linkCommitTickets(tickets, commitsList);
+            logger.info("Linked commits to tickets");
+            //Now we take only the first half releases
+            List<Release> releaseList = ReleaseUtility.removeHalfReleases(releases);
+            //Now we need to extract our Java classes
+            List<JavaClass> javaClassList = gitController.retrieveClasses(releaseList);
+            logger.info("Extracted {} classes", javaClassList.size());
+            //Now we need to compute the metrics
+
+        }
+
     }
 
 }
