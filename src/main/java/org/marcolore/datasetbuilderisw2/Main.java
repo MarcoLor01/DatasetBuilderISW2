@@ -25,12 +25,13 @@ public class Main {
     public static final String PROJECT_NAME = "BOOKKEEPER";
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
     private static String initialPath;
-    
+
     public static void main(String[] args) throws IOException, GitAPIException {
 
         takeCorrectPath();
 
         JiraController jiraController = new JiraController(PROJECT_NAME);
+
         List<Release> releases = jiraController.getReleaseInfo(); //Get all releases
         logger.info("Retrieved {} releases", releases.size());
 
@@ -40,8 +41,10 @@ public class Main {
         //Now we have all the tickets and releases, but many tickets are without an injected version
         ProportionController.insertIV(tickets, releases);
         TicketUtility.checkTicketValidity(tickets, releases);
+
         //Tickets are now both correct and complete
         logger.info("Validated {} tickets", tickets.size());
+
         // Setting the repo path
         String path = initialPath + PROJECT_NAME.toLowerCase();
         try (GitController gitController = new GitController(path)) {

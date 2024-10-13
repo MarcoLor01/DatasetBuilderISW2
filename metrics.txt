@@ -28,4 +28,13 @@ Calcolo: Churn totale = Righe aggiunte + righe rimosse, Churn medio per commit: 
 
 11) AVG LOC ADDED: numero medio di linee aggiunte nelle revisioni
 
-12) METRICHE PERSONALIZZATE
+12) INSTABILITA' DELLA CLASSE: EFFERENT COUPLING / (EFFERENT COUPLING + AFFERENT COUPLING)
+
+Dove:
+
+Ce (Efferent Coupling): quante altre classi usa.
+Ca (Afferent Coupling): cioè quante classi dipendono dalla tua classe.
+Il risultato è un valore compreso tra 0 e 1:
+
+0: Massima stabilità. La classe non dipende da nessun'altra classe, ma molte altre dipendono da essa.
+1: Massima instabilità. La classe dipende da molte altre classi, ma nessuna classe dipende da essa.
