@@ -12,6 +12,7 @@ public class JavaClass {
     private String fileContent;
     private int loc;
     private int authorsNumber;
+    private int revisionsNumber;
 
     public JavaClass(String className, Release release, String fileContent) {
         this.className = className;
@@ -69,5 +70,13 @@ public class JavaClass {
 
     public void setAuthorsNumber(int authorsNumber) {
         this.authorsNumber = authorsNumber;
+    }
+
+    public int getRevisionsNumber() {
+        return revisionsNumber;
+    }
+
+    public void setRevisionsNumber(int revisionsNumber) {
+        this.revisionsNumber = revisionsNumber;
     }
 }

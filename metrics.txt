@@ -4,11 +4,11 @@ LISTA DI METRICHE PER CLASSE:
 
 2) LOC TOUCHED: somma delle revisioni del LOC aggiunte ed eliminate
 
-3) NAUTH: numero di autori della classe
+3) NAUTH: numero di autori della classe FATTO
 Calcolo: authors.add(commit.getAuthorIdent().getName()) posso ottenere la lista degli autori di tutti i commit della classe
 a questo punto posso quantificare con authors.size() (Ovviamente devo gestire i duplicati, possibile tramite HashSet)
 
-4) NR: numero di revisioni
+4) NR: numero di revisioni FATTO
 
 Calcolo: numero di commit che toccano la classe
 

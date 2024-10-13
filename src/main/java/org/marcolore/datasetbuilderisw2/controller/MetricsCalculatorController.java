@@ -26,6 +26,13 @@ public class MetricsCalculatorController {
     public void calculateMetrics(){
         calculateLoc();
         calculateNumberOfAuthors();
+        calculateNumberOfRevisions();
+    }
+
+    private void calculateNumberOfRevisions() {
+        for(JavaClass javaClass : javaClassList){
+            javaClass.setRevisionsNumber(javaClass.getListOfCommit().size());
+        }
     }
 
     private void calculateNumberOfAuthors() {
