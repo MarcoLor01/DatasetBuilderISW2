@@ -4,6 +4,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.marcolore.datasetbuilderisw2.controller.GitController;
 import org.marcolore.datasetbuilderisw2.controller.JiraController;
+import org.marcolore.datasetbuilderisw2.controller.MetricsCalculatorController;
 import org.marcolore.datasetbuilderisw2.controller.ProportionController;
 import org.marcolore.datasetbuilderisw2.model.JavaClass;
 import org.marcolore.datasetbuilderisw2.model.Release;
@@ -62,7 +63,8 @@ public class Main {
             List<JavaClass> javaClassList = gitController.retrieveClasses(releaseList);
             logger.info("Extracted {} classes", javaClassList.size());
             //Now we need to compute the metrics
-
+            MetricsCalculatorController metricsCalculator = new MetricsCalculatorController(javaClassList, commitsList);
+            metricsCalculator.calculateMetrics();
         }
 
     }

@@ -1,6 +1,6 @@
 LISTA DI METRICHE PER CLASSE:
 
-1) LOC: numero di righe di codice nella classe
+1) LOC: numero di righe di codice nella classe FATTO
 
 2) LOC TOUCHED: somma delle revisioni del LOC aggiunte ed eliminate
 

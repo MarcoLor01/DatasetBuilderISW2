@@ -10,6 +10,8 @@ public class JavaClass {
     private List<RevCommit> listOfCommit = new ArrayList<>();
     private Release release;
     private String fileContent;
+    private int loc;
+    private int authorsNumber;
 
     public JavaClass(String className, Release release, String fileContent) {
         this.className = className;
@@ -51,5 +53,21 @@ public class JavaClass {
 
     public void setFileContent(String fileContent) {
         this.fileContent = fileContent;
+    }
+
+    public int getLoc() {
+        return loc;
+    }
+
+    public void setLoc(int loc) {
+        this.loc = loc;
+    }
+
+    public int getAuthorsNumber() {
+        return authorsNumber;
+    }
+
+    public void setAuthorsNumber(int authorsNumber) {
+        this.authorsNumber = authorsNumber;
     }
 }
