@@ -4,10 +4,12 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
+import org.eclipse.jgit.diff.Edit;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.patch.FileHeader;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
@@ -79,6 +81,7 @@ public class GitController implements AutoCloseable {
 
                 List<String> javaClassRelease = new ArrayList<>();
                 List<RevCommit> releaseCommits = release.getCommitList();
+
                 for (RevCommit commit : releaseCommits) {
                     ObjectId idTree = commit.getTree(); //References to this commit tree
                     Repository repository = git.getRepository();
@@ -128,6 +131,7 @@ public class GitController implements AutoCloseable {
         for (RevCommit commit : commitList) {
             Release commitRelease = findReleaseFromCommit(commit, releaseList); //Release of the commit
             List<String> touchedJavaClassName = findTouchedClassFromCommit(commit); //List of the name of the touched classes by the commit
+
             for (String touchedClassName : touchedJavaClassName) {
                 for (JavaClass classJava : javaClassList) {
                     if (classJava.getRelease().equals(commitRelease)
@@ -140,7 +144,62 @@ public class GitController implements AutoCloseable {
         }
     }
 
+    public void calculateLocMeasures(RevCommit commit, RevCommit parentCommit, JavaClass javaClass) throws IOException, GitAPIException {
+        int locTouched = 0;
+        int totalAddedLines = 0;
+        int maxAddedLines = 0;
+        try (ObjectReader reader = git.getRepository().newObjectReader()) {
+            CanonicalTreeParser commitTree = prepareTreeParser(reader, commit);
+            CanonicalTreeParser commitParentTree = prepareTreeParser(reader, parentCommit);
 
+            List<DiffEntry> diffs = git.diff()
+                    .setNewTree(commitTree)
+                    .setOldTree(commitParentTree)
+                    .call();
+
+            for (DiffEntry entry : diffs) {
+                if (entry.getNewPath().equals(javaClass.getClassName())) {
+                    locTouched += calculateLocTouched(entry);
+                    int addedLines = calculateTotalAddLines(entry);
+                    totalAddedLines += addedLines;
+                    maxAddedLines = Math.max(javaClass.getMaxAddedLines(), addedLines);
+                }
+            }
+
+
+            javaClass.setTouchedLoc(locTouched);
+            javaClass.setTotalAddedLines(totalAddedLines);
+            javaClass.setMaxAddedLines(maxAddedLines);
+        }
+    }
+
+    private int calculateTotalAddLines(DiffEntry entry) throws IOException {
+        int totalAddLines = 0;
+        FileHeader fileHeader = getFileHeader(entry);
+        for (Edit edit : fileHeader.toEditList()){
+            totalAddLines += (edit.getEndB() - edit.getBeginB());
+        }
+        return totalAddLines;
+    }
+
+    private int calculateLocTouched(DiffEntry entry) throws IOException {
+        int touchedLoc = 0;
+        FileHeader fileHeader = getFileHeader(entry);
+
+        for (Edit edit : fileHeader.toEditList()) {
+            touchedLoc += (edit.getEndA() - edit.getBeginA()) + (edit.getEndB() - edit.getBeginB());
+        }
+
+        return touchedLoc;
+    }
+
+    private FileHeader getFileHeader(DiffEntry entry) throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        DiffFormatter diffFormatter = new DiffFormatter(outputStream);
+        diffFormatter.setRepository(git.getRepository());
+
+        return diffFormatter.toFileHeader(entry);
+    }
 
     public List<String> findTouchedClassFromCommit(RevCommit commit) throws IOException {
         List<String> touchedClassesNames = new ArrayList<>();

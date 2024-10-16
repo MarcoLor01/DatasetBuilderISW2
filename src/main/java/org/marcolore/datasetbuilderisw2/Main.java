@@ -59,11 +59,11 @@ public class Main {
             logger.info("Linked commits to tickets");
             //Now we take only the first half releases
             List<Release> releaseList = ReleaseUtility.removeHalfReleases(releases);
-            //Now we need to extract our Java classes
+            //Now we need to extract our Java classess
             List<JavaClass> javaClassList = gitController.retrieveClasses(releaseList);
             logger.info("Extracted {} classes", javaClassList.size());
             //Now we need to compute the metrics
-            MetricsCalculatorController metricsCalculator = new MetricsCalculatorController(javaClassList, commitsList);
+            MetricsCalculatorController metricsCalculator = new MetricsCalculatorController(javaClassList, commitsList, gitController);
             metricsCalculator.calculateMetrics();
         }
 

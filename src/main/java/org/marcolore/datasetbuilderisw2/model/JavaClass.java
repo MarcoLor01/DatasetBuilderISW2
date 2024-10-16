@@ -13,6 +13,10 @@ public class JavaClass {
     private int loc;
     private int authorsNumber;
     private int revisionsNumber;
+    private int touchedLoc;
+    private int totalAddedLines;
+    private int averageAddedLines;
+    private int maxAddedLines;
 
     public JavaClass(String className, Release release, String fileContent) {
         this.className = className;
@@ -78,5 +82,37 @@ public class JavaClass {
 
     public void setRevisionsNumber(int revisionsNumber) {
         this.revisionsNumber = revisionsNumber;
+    }
+
+    public int getTouchedLoc() {
+        return touchedLoc;
+    }
+
+    public void setTouchedLoc(int touchedLoc) {
+        this.touchedLoc += touchedLoc;
+    }
+
+    public int getTotalAddedLines() {
+        return totalAddedLines;
+    }
+
+    public void setTotalAddedLines(int totalAddedLines) {
+        this.totalAddedLines += totalAddedLines;
+    }
+
+    public int getAverageAddedLines() {
+        return averageAddedLines;
+    }
+
+    public void setAverageAddedLines(int averageAddedLines) {
+        this.averageAddedLines = averageAddedLines;
+    }
+
+    public int getMaxAddedLines() {
+        return maxAddedLines;
+    }
+
+    public void setMaxAddedLines(int maxAddedLines) {
+        this.maxAddedLines = maxAddedLines;
     }
 }

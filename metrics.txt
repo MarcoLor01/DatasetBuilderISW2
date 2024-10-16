@@ -2,14 +2,13 @@ LISTA DI METRICHE PER CLASSE:
 
 1) LOC: numero di righe di codice nella classe FATTO
 
-2) LOC TOUCHED: somma delle revisioni del LOC aggiunte ed eliminate
+2) LOC TOUCHED: somma delle revisioni del LOC aggiunte ed eliminate FATTO
 
 3) NAUTH: numero di autori della classe FATTO
 Calcolo: authors.add(commit.getAuthorIdent().getName()) posso ottenere la lista degli autori di tutti i commit della classe
 a questo punto posso quantificare con authors.size() (Ovviamente devo gestire i duplicati, possibile tramite HashSet)
 
 4) NR: numero di revisioni FATTO
-
 Calcolo: numero di commit che toccano la classe
 
 5) CHURN: |Linee aggiunte - Righe rimosse| calcolato come valore assoluto sulla classe
@@ -22,11 +21,11 @@ Calcolo: Churn totale = Righe aggiunte + righe rimosse, Churn medio per commit: 
 
 8) NBUGFIXED: numero di bug fixati all'interno della classe
 
-9) LOC ADDED: linee che vengono aggiunte nelle revisioni
+9) LOC ADDED: linee che vengono aggiunte nelle revisioni FATTO
 
-10) MAX LOC ADDED: calcolo le linee aggiunte nelle revisioni e prendo il max
+10) MAX LOC ADDED: calcolo le linee aggiunte nelle revisioni e prendo il max FATTO
 
-11) AVG LOC ADDED: numero medio di linee aggiunte nelle revisioni
+11) AVG LOC ADDED: numero medio di linee aggiunte nelle revisioni FATTO
 
 12) INSTABILITA' DELLA CLASSE: EFFERENT COUPLING / (EFFERENT COUPLING + AFFERENT COUPLING)
 
