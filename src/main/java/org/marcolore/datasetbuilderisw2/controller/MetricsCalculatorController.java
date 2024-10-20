@@ -1,23 +1,15 @@
 package org.marcolore.datasetbuilderisw2.controller;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.marcolore.datasetbuilderisw2.Main;
 import org.marcolore.datasetbuilderisw2.model.JavaClass;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.imageio.IIOException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 
 public class MetricsCalculatorController {
 
-    private static final Logger logger = LoggerFactory.getLogger(MetricsCalculatorController.class);
     private final List<JavaClass> javaClassList;
     private final List<RevCommit> commitList;
     private final GitController gitController;

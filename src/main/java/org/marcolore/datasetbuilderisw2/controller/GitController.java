@@ -149,7 +149,6 @@ public class GitController implements AutoCloseable {
         int totalAddedLines = 0;
         int maxAddedLines = 0;
         int totalChurn = 0;
-        int averageChurn = 0;
         int maxChurn = 0;
 
         try (ObjectReader reader = git.getRepository().newObjectReader()) {
