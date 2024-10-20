@@ -17,6 +17,9 @@ public class JavaClass {
     private int totalAddedLines;
     private int averageAddedLines;
     private int maxAddedLines;
+    private int totalChurn;
+    private int averageChurn;
+    private int maxChurn;
 
     public JavaClass(String className, Release release, String fileContent) {
         this.className = className;
@@ -114,5 +117,29 @@ public class JavaClass {
 
     public void setMaxAddedLines(int maxAddedLines) {
         this.maxAddedLines = maxAddedLines;
+    }
+
+    public int getTotalChurn() {
+        return totalChurn;
+    }
+
+    public void setTotalChurn(int totalChurn) {
+        this.totalChurn = totalChurn;
+    }
+
+    public int getAverageChurn() {
+        return averageChurn;
+    }
+
+    public void setAverageChurn(int averageChurn) {
+        this.averageChurn = averageChurn;
+    }
+
+    public int getMaxChurn() {
+        return maxChurn;
+    }
+
+    public void setMaxChurn(int maxChurn) {
+        this.maxChurn = maxChurn;
     }
 }

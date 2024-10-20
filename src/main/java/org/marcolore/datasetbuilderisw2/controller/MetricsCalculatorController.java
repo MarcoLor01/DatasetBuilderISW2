@@ -46,8 +46,9 @@ public class MetricsCalculatorController {
                 gitController.calculateLocMeasures(commit, commit.getParent(0), javaClass);
 
             }
-            if(commits.size() != 0) {
+            if(!commits.isEmpty()) {
                 javaClass.setAverageAddedLines(javaClass.getTotalAddedLines() / commits.size());
+                javaClass.setAverageChurn(javaClass.getTotalChurn() / commits.size());
             }
 
         }

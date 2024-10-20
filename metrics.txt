@@ -11,15 +11,15 @@ a questo punto posso quantificare con authors.size() (Ovviamente devo gestire i 
 4) NR: numero di revisioni FATTO
 Calcolo: numero di commit che toccano la classe
 
-5) CHURN: |Linee aggiunte - Righe rimosse| calcolato come valore assoluto sulla classe
+5) CHURN: |Linee aggiunte - Righe rimosse| calcolato come valore assoluto sulla classe FATTO
 
-6) CHURN MEDIO: grado di modifica e cambiamento che una classe subisce nel tempo
+6) CHURN MEDIO: grado di modifica e cambiamento che una classe subisce nel tempo FATTO
 
 Calcolo: Churn totale = Righe aggiunte + righe rimosse, Churn medio per commit: Churn totale / Numero di commit
 
-7) CHURN MAX: commit con churn più grande di tutti
+7) CHURN MAX: commit con churn più grande di tutti FATTO
 
-8) NBUGFIXED: numero di bug fixati all'interno della classe
+8) NBUGFIXED: numero di difetti fixati all'interno della classe
 
 9) LOC ADDED: linee che vengono aggiunte nelle revisioni FATTO
 
@@ -37,3 +37,8 @@ Il risultato è un valore compreso tra 0 e 1:
 
 0: Massima stabilità. La classe non dipende da nessun'altra classe, ma molte altre dipendono da essa.
 1: Massima instabilità. La classe dipende da molte altre classi, ma nessuna classe dipende da essa.
+
+Metriche calcolate:
+- Calcolate: 10
+- Non calcolate: NBugFixed, Instabilità
+

@@ -148,6 +148,10 @@ public class GitController implements AutoCloseable {
         int locTouched = 0;
         int totalAddedLines = 0;
         int maxAddedLines = 0;
+        int totalChurn = 0;
+        int averageChurn = 0;
+        int maxChurn = 0;
+
         try (ObjectReader reader = git.getRepository().newObjectReader()) {
             CanonicalTreeParser commitTree = prepareTreeParser(reader, commit);
             CanonicalTreeParser commitParentTree = prepareTreeParser(reader, parentCommit);
@@ -163,13 +167,17 @@ public class GitController implements AutoCloseable {
                     int addedLines = calculateTotalAddLines(entry);
                     totalAddedLines += addedLines;
                     maxAddedLines = Math.max(javaClass.getMaxAddedLines(), addedLines);
+                    int churn = calculateTotalChurn(entry);
+                    totalChurn += churn;
+                    maxChurn = Math.max(javaClass.getMaxChurn(), churn);
                 }
             }
 
-
+            javaClass.setTotalChurn(totalChurn);
             javaClass.setTouchedLoc(locTouched);
             javaClass.setTotalAddedLines(totalAddedLines);
             javaClass.setMaxAddedLines(maxAddedLines);
+            javaClass.setMaxChurn(maxChurn);
         }
     }
 
@@ -191,6 +199,17 @@ public class GitController implements AutoCloseable {
         }
 
         return touchedLoc;
+    }
+
+    private int calculateTotalChurn(DiffEntry entry) throws IOException {
+        int churn = 0;
+        FileHeader fileHeader = getFileHeader(entry);
+
+        for (Edit edit : fileHeader.toEditList()) {
+            churn += (edit.getEndB() - edit.getBeginB()) - (edit.getEndA() - edit.getBeginA());
+        }
+
+        return churn;
     }
 
     private FileHeader getFileHeader(DiffEntry entry) throws IOException {
