@@ -20,6 +20,7 @@ public class JavaClass {
     private int totalChurn;
     private int averageChurn;
     private int maxChurn;
+    private int numberFix;
 
     public JavaClass(String className, Release release, String fileContent) {
         this.className = className;
@@ -141,5 +142,13 @@ public class JavaClass {
 
     public void setMaxChurn(int maxChurn) {
         this.maxChurn = maxChurn;
+    }
+
+    public int getNumberFix() {
+        return numberFix;
+    }
+
+    public void setNumberFix(int numberFix) {
+        this.numberFix = numberFix;
     }
 }

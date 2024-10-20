@@ -26,6 +26,12 @@ public class MetricsCalculatorController {
         calculateNumberOfAuthors();
         calculateNumberOfRevisions();
         calculateLocFromCommitMeasures();
+        calculateNumberFix();
+        calculateInstabilityClass();
+    }
+
+    private void calculateInstabilityClass() {
+        //TODO: Implement this method
     }
 
     private void calculateLocFromCommitMeasures() throws IOException, GitAPIException {
@@ -45,6 +51,18 @@ public class MetricsCalculatorController {
 
         }
 
+    }
+
+    private void calculateNumberFix() {
+        for (JavaClass javaClass : javaClassList) {
+            int count = 0;
+            for (RevCommit commit : javaClass.getListOfCommit()) {
+                if (commitList.contains(commit)) {
+                    count++;
+                }
+            }
+            javaClass.setNumberFix(count);
+        }
     }
 
     private void calculateNumberOfRevisions() {

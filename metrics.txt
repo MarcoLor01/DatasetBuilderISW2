@@ -19,7 +19,7 @@ Calcolo: Churn totale = Righe aggiunte + righe rimosse, Churn medio per commit: 
 
 7) CHURN MAX: commit con churn più grande di tutti FATTO
 
-8) NBUGFIXED: numero di difetti fixati all'interno della classe
+8) NBUGFIXED: numero di difetti fixati all'interno della classe FATTO
 
 9) LOC ADDED: linee che vengono aggiunte nelle revisioni FATTO
 
@@ -39,6 +39,6 @@ Il risultato è un valore compreso tra 0 e 1:
 1: Massima instabilità. La classe dipende da molte altre classi, ma nessuna classe dipende da essa.
 
 Metriche calcolate:
-- Calcolate: 10
-- Non calcolate: NBugFixed, Instabilità
+- Calcolate: 11
+- Non calcolate: Instabilità
 
