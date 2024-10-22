@@ -21,7 +21,7 @@ public class JavaClass {
     private int averageChurn;
     private int maxChurn;
     private int numberFix;
-
+    private int cyclomaticComplexity;
     public JavaClass(String className, Release release, String fileContent) {
         this.className = className;
         this.release = release;
@@ -150,5 +150,13 @@ public class JavaClass {
 
     public void setNumberFix(int numberFix) {
         this.numberFix = numberFix;
+    }
+
+    public int getCyclomaticComplexity() {
+        return cyclomaticComplexity;
+    }
+
+    public void setCyclomaticComplexity(int cyclomaticComplexity) {
+        this.cyclomaticComplexity = cyclomaticComplexity;
     }
 }

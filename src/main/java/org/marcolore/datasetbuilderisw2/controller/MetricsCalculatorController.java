@@ -5,8 +5,9 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.marcolore.datasetbuilderisw2.model.JavaClass;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MetricsCalculatorController {
 
@@ -27,11 +28,67 @@ public class MetricsCalculatorController {
         calculateNumberOfRevisions();
         calculateLocFromCommitMeasures();
         calculateNumberFix();
-        calculateInstabilityClass();
+        calculateCyclomaticComplexity();
     }
 
-    private void calculateInstabilityClass() {
-        //TODO: Implement this method
+    public static String removeComments(String code) {
+        return code.replaceAll("//.*|/\\*[^*]*(\\*[^/][^*]*)*\\*/", ""); //Removing inline comments and multilines comments
+    }
+
+    private void calculateCyclomaticComplexity() {
+
+        String[] controlStructures = {
+                "if\\s*\\(",      // if
+                "else\\s*if\\s*\\(", // else if
+                "for\\s*\\(",     // for
+                "while\\s*\\(",   // while
+                "do\\s*\\{",      // do-while
+                "switch\\s*\\(",  // switch
+                "case\\s",        // case
+                "default\\s*:"    // default
+        };
+
+        String[] booleanConditions = {
+                "&&",             // AND logic
+                "\\|\\|"          // OR logic
+        };
+
+        String[] exceptionStructures = {
+                "throw\\s",       // throw
+                "throws\\s",      // throws
+                "catch\\s*\\(",   // catch
+                "finally\\s*\\{"  // finally
+        };
+
+        for(JavaClass javaClass : javaClassList) {
+            String javaClassCode = removeComments(javaClass.getFileContent());
+            int complexity = 1;
+
+            for(String pattern : controlStructures){
+                complexity += countMatches(javaClassCode, pattern);
+            }
+            for(String pattern : booleanConditions){
+                complexity += countMatches(javaClassCode, pattern);
+            }
+            for(String pattern : exceptionStructures){
+                complexity += countMatches(javaClassCode, pattern);
+            }
+            javaClass.setCyclomaticComplexity(complexity);
+
+            System.out.printf("Cyclomatic Complexity of class: %s\nCode class: %s\n", javaClass.getCyclomaticComplexity(), javaClass.getFileContent());
+        }
+
+    }
+
+    public static int countMatches(String code, String regex){
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(code);
+        int count = 0;
+
+        while (matcher.find()){
+            count++;
+        }
+        return count;
     }
 
     private void calculateLocFromCommitMeasures() throws IOException, GitAPIException {
@@ -89,12 +146,12 @@ public class MetricsCalculatorController {
 
         for (JavaClass javaClass : javaClassList) {
             int totalLoc = 0;
-            String content = javaClass.getFileContent();
+            String content = removeComments(javaClass.getFileContent());
             String[] lines = content.split("\n");
 
             for (String line : lines) {
                 String trimmedLine = line.trim();
-                if (!trimmedLine.isEmpty() && !trimmedLine.startsWith("//") && !trimmedLine.startsWith("/*")) {
+                if (!trimmedLine.isEmpty()) {
                     totalLoc++;
                 }
             }
