@@ -27,5 +27,7 @@ Calcolo: Churn totale = Righe aggiunte + righe rimosse, Churn medio per commit: 
 
 11) AVG LOC ADDED: numero medio di linee aggiunte nelle revisioni FATTO
 
-12) Class Dependency Count: quante classi sono direttamente referenziate o utilizzate dalla classe.
-CDC Alto -> Classe molto dipendente dalle altre -> Modifica più difficile
+12) Cyclomatic Complexity
+
+13) Time between commit: La frequenza con cui la classe viene modificata. Se una classe viene modificata troppo frequentemente, potrebbe essere instabile.
+Calcolo la differenza di giorni e faccio la media.

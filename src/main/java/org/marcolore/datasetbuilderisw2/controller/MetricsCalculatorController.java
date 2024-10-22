@@ -3,8 +3,12 @@ package org.marcolore.datasetbuilderisw2.controller;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.marcolore.datasetbuilderisw2.model.JavaClass;
+import org.marcolore.datasetbuilderisw2.model.Ticket;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,7 +33,39 @@ public class MetricsCalculatorController {
         calculateLocFromCommitMeasures();
         calculateNumberFix();
         calculateCyclomaticComplexity();
+        calculateTimeBetweenCommit();
     }
+
+    private void calculateTimeBetweenCommit() {
+        for (JavaClass javaClass : javaClassList) {
+            List<RevCommit> listOfCommits = javaClass.getListOfCommit();
+            listOfCommits.sort(Comparator.comparing(revCommit -> revCommit.getCommitterIdent().getWhen()));
+
+            List<Long> commitDistances = new ArrayList<>();
+            LocalDate previousCommitDate = null;
+
+
+            for (RevCommit revCommit : listOfCommits) {
+                Instant commitInstant = revCommit.getCommitterIdent().getWhen().toInstant();
+                LocalDate commitDate = commitInstant.atZone(ZoneId.systemDefault()).toLocalDate();
+
+                if (previousCommitDate != null) {
+                    long daysBetween = java.time.Duration.between(previousCommitDate.atStartOfDay(), commitDate.atStartOfDay()).toDays();
+                    commitDistances.add(daysBetween);
+                }
+                previousCommitDate = commitDate;
+            }
+
+            double averageDaysBetweenCommits = commitDistances.stream()
+                    .mapToLong(Long::longValue)
+                    .average()
+                    .orElse(0.0);
+
+            javaClass.setDaysBetweenCommits(averageDaysBetweenCommits);
+
+        }
+    }
+
 
     public static String removeComments(String code) {
         return code.replaceAll("//.*|/\\*[^*]*(\\*[^/][^*]*)*\\*/", ""); //Removing inline comments and multilines comments
@@ -75,7 +111,6 @@ public class MetricsCalculatorController {
             }
             javaClass.setCyclomaticComplexity(complexity);
 
-            System.out.printf("Cyclomatic Complexity of class: %s\nCode class: %s\n", javaClass.getCyclomaticComplexity(), javaClass.getFileContent());
         }
 
     }

@@ -22,6 +22,8 @@ public class JavaClass {
     private int maxChurn;
     private int numberFix;
     private int cyclomaticComplexity;
+    private double daysBetweenCommits;
+
     public JavaClass(String className, Release release, String fileContent) {
         this.className = className;
         this.release = release;
@@ -158,5 +160,13 @@ public class JavaClass {
 
     public void setCyclomaticComplexity(int cyclomaticComplexity) {
         this.cyclomaticComplexity = cyclomaticComplexity;
+    }
+
+    public double getDaysBetweenCommits() {
+        return daysBetweenCommits;
+    }
+
+    public void setDaysBetweenCommits(double daysBetweenCommits) {
+        this.daysBetweenCommits = daysBetweenCommits;
     }
 }
