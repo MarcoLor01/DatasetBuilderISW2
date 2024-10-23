@@ -15,14 +15,16 @@ public class JavaClass {
     private int revisionsNumber;
     private int touchedLoc;
     private int totalAddedLines;
-    private int averageAddedLines;
+    private float averageAddedLines;
     private int maxAddedLines;
     private int totalChurn;
-    private int averageChurn;
+    private float averageChurn;
     private int maxChurn;
     private int numberFix;
     private int cyclomaticComplexity;
     private double daysBetweenCommits;
+    private boolean buggy;
+    private List<RevCommit> fixCommits = new ArrayList<>();
 
     public JavaClass(String className, Release release, String fileContent) {
         this.className = className;
@@ -106,11 +108,11 @@ public class JavaClass {
         this.totalAddedLines += totalAddedLines;
     }
 
-    public int getAverageAddedLines() {
+    public float getAverageAddedLines() {
         return averageAddedLines;
     }
 
-    public void setAverageAddedLines(int averageAddedLines) {
+    public void setAverageAddedLines(float averageAddedLines) {
         this.averageAddedLines = averageAddedLines;
     }
 
@@ -130,11 +132,11 @@ public class JavaClass {
         this.totalChurn = totalChurn;
     }
 
-    public int getAverageChurn() {
+    public float getAverageChurn() {
         return averageChurn;
     }
 
-    public void setAverageChurn(int averageChurn) {
+    public void setAverageChurn(float averageChurn) {
         this.averageChurn = averageChurn;
     }
 
@@ -168,5 +170,25 @@ public class JavaClass {
 
     public void setDaysBetweenCommits(double daysBetweenCommits) {
         this.daysBetweenCommits = daysBetweenCommits;
+    }
+
+    public boolean isBuggy() {
+        return buggy;
+    }
+
+    public void setBuggy(boolean buggy) {
+        this.buggy = buggy;
+    }
+
+    public List<RevCommit> getFixCommits() {
+        return fixCommits;
+    }
+
+    public void setFixCommits(List<RevCommit> fixCommits) {
+        this.fixCommits = fixCommits;
+    }
+
+    public void addFixCommit(RevCommit commit){
+        fixCommits.add(commit);
     }
 }

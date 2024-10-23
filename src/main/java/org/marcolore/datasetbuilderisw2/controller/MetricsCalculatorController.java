@@ -31,7 +31,6 @@ public class MetricsCalculatorController {
         calculateNumberOfAuthors();
         calculateNumberOfRevisions();
         calculateLocFromCommitMeasures();
-        calculateNumberFix();
         calculateCyclomaticComplexity();
         calculateTimeBetweenCommit();
     }
@@ -137,23 +136,17 @@ public class MetricsCalculatorController {
 
             }
             if(!commits.isEmpty()) {
-                javaClass.setAverageAddedLines(javaClass.getTotalAddedLines() / commits.size());
-                javaClass.setAverageChurn(javaClass.getTotalChurn() / commits.size());
+                javaClass.setAverageAddedLines((float) javaClass.getTotalAddedLines() / commits.size());
+                javaClass.setAverageChurn((float) javaClass.getTotalChurn() / commits.size());
             }
 
         }
 
     }
 
-    private void calculateNumberFix() {
+    public void calculateNumberFix(List<JavaClass> javaClassList) {
         for (JavaClass javaClass : javaClassList) {
-            int count = 0;
-            for (RevCommit commit : javaClass.getListOfCommit()) {
-                if (commitList.contains(commit)) {
-                    count++;
-                }
-            }
-            javaClass.setNumberFix(count);
+            javaClass.setNumberFix(javaClass.getFixCommits().size());
         }
     }
 

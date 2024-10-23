@@ -1,5 +1,6 @@
 package org.marcolore.datasetbuilderisw2.utility;
 
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.json.JSONArray;
 import org.marcolore.datasetbuilderisw2.model.JavaClass;
 import org.marcolore.datasetbuilderisw2.model.Release;
@@ -7,10 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ReleaseUtility {
 
@@ -60,11 +59,17 @@ public class ReleaseUtility {
 
     }
 
+    public static Release releaseFromId(List<Release> releases, int releaseId){
+        Map<Integer, Release> releaseMap = releases.stream()
+                .collect(Collectors.toMap(Release::getId, r -> r));
+
+        return  releaseMap.get(releaseId);
+    }
+
     public static Integer matchCommitsRelease(LocalDateTime date, List<Release> releases) {
 
         int releaseInd = 0;
         for (int i = 0; i<releases.size(); i++){
-
             if (date.isBefore(releases.get(i).getReleaseDate())) {
                 releaseInd = releases.get(i).getId();
                 break;
