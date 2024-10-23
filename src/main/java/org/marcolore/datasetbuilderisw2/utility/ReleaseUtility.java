@@ -1,6 +1,5 @@
 package org.marcolore.datasetbuilderisw2.utility;
 
-import org.eclipse.jgit.revwalk.RevCommit;
 import org.json.JSONArray;
 import org.marcolore.datasetbuilderisw2.model.JavaClass;
 import org.marcolore.datasetbuilderisw2.model.Release;

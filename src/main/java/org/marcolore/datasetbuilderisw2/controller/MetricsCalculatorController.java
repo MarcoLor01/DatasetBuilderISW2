@@ -3,8 +3,6 @@ package org.marcolore.datasetbuilderisw2.controller;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.marcolore.datasetbuilderisw2.model.JavaClass;
-import org.marcolore.datasetbuilderisw2.model.Ticket;
-
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -67,7 +65,29 @@ public class MetricsCalculatorController {
 
 
     public static String removeComments(String code) {
-        return code.replaceAll("//.*|/\\*[^*]*(\\*[^/][^*]*)*\\*/", ""); //Removing inline comments and multilines comments
+        StringBuilder result = new StringBuilder();
+        int length = code.length();
+        int i = 0;
+
+        while (i < length) {
+            if (i < length - 1 && code.charAt(i) == '/' && code.charAt(i + 1) == '/') {
+                i += 2;
+                while (i < length && code.charAt(i) != '\n') {
+                    i++;
+                }
+            } else if (i < length - 1 && code.charAt(i) == '/' && code.charAt(i + 1) == '*') {
+                i += 2;
+                while (i < length - 1 && !(code.charAt(i) == '*' && code.charAt(i + 1) == '/')) {
+                    i++;
+                }
+                i += 2;
+            } else {
+                result.append(code.charAt(i));
+                i++;
+            }
+        }
+
+        return result.toString();
     }
 
     private void calculateCyclomaticComplexity() {

@@ -1,6 +1,8 @@
 package org.marcolore.datasetbuilderisw2.utility;
 
 import org.marcolore.datasetbuilderisw2.model.JavaClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -10,15 +12,17 @@ import java.util.List;
 
 public class CsvUtility {
 
-    public static void WriteCsvFile(List<JavaClass> javaClassList, String title, int number, String projectName) {
-        System.out.printf("Creazione del dataset di %s\n", title);
+    private CsvUtility() {
+    }
 
+    private static final Logger logger = LoggerFactory.getLogger(CsvUtility.class);
+    public static void writeCsvFile(List<JavaClass> javaClassList, String title, int number, String projectName) {
 
         String baseDir = "src/main/dataset/csvDataset";
         File baseDirectory = new File(baseDir);
 
         if (!baseDirectory.exists() || !baseDirectory.isDirectory()) {
-            System.err.println("La directory iniziale non esiste o non è una directory: " + baseDir);
+            logger.error("Start directory doesn't exists: " + baseDir);
             return;
         }
 
@@ -28,9 +32,9 @@ public class CsvUtility {
         if (!directory.exists()) {
             boolean created = directory.mkdirs();
             if (created) {
-                System.out.println("Directory creata: " + directory.getAbsolutePath());
+                logger.info("Directory created: " + directory.getAbsolutePath());
             } else {
-                System.err.println("Impossibile creare la directory: " + directory.getAbsolutePath());
+                logger.error("Impossible create the directory: " + directory.getAbsolutePath());
                 return;
             }
         }
@@ -63,9 +67,9 @@ public class CsvUtility {
                 writer.newLine();
             }
 
-            System.out.println("File CSV creato: " + csvFile.getAbsolutePath());
+            logger.info("CSV file created: " + csvFile.getAbsolutePath());
         } catch (IOException e) {
-            System.err.println("Errore durante la scrittura del file CSV: " + e.getMessage());
+            logger.error("Error in the writing: " + e.getMessage());
         }
     }
 

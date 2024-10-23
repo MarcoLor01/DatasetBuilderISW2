@@ -87,9 +87,7 @@ public class Main {
         from release 3 to the last release who is the number tot_release / 2 */
         int firstRelease = 3;
         int numberOfTraining = 1;
-        for (Release release : releaseList){
-            System.out.printf("Release number %d\n", release.getId());
-        }
+
         for(int i=firstRelease;i<=(releaseList.size());i++){
             //Now we use the first release as the test set
             List<JavaClass> trainingClassList = new ArrayList<>(javaClassList);
@@ -118,8 +116,8 @@ public class Main {
             setBuggyOrNot(tickets, testingClassList, gitController, releaseList);
             metricsCalculatorController.calculateNumberFix(trainingClassList);
             metricsCalculatorController.calculateNumberFix(testingClassList);
-            CsvUtility.WriteCsvFile(trainingClassList, "Training", numberOfTraining, PROJECT_NAME);
-            CsvUtility.WriteCsvFile(testingClassList, "Testing", numberOfTraining, PROJECT_NAME);
+            CsvUtility.writeCsvFile(trainingClassList, "Training", numberOfTraining, PROJECT_NAME);
+            CsvUtility.writeCsvFile(testingClassList, "Testing", numberOfTraining, PROJECT_NAME);
             ArffUtility.createArff(trainingClassList, "Training", numberOfTraining, PROJECT_NAME);
             ArffUtility.createArff(testingClassList, "Testing", numberOfTraining, PROJECT_NAME);
             numberOfTraining++;

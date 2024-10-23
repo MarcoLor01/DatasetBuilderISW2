@@ -1,6 +1,8 @@
 package org.marcolore.datasetbuilderisw2.utility;
 
 import org.marcolore.datasetbuilderisw2.model.JavaClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -9,6 +11,11 @@ import java.io.IOException;
 import java.util.List;
 
 public class ArffUtility {
+
+    private ArffUtility() {
+    }
+
+    private static final Logger logger = LoggerFactory.getLogger(ArffUtility.class);
 
     public static void createArff(List<JavaClass> classes, String title, int numberTraining, String project) throws IOException {
         project = project.toLowerCase();
@@ -20,9 +27,9 @@ public class ArffUtility {
         try (BufferedWriter fileWriter = new BufferedWriter(new FileWriter(arffFile))) {
             writeArffHeader(fileWriter, project, title, numberTraining);
             writeArffData(fileWriter, classes);
-            System.out.println("File ARFF creato: " + arffFile.getAbsolutePath());
+            logger.info("File ARFF created: " + arffFile.getAbsolutePath());
         } catch (IOException e) {
-            System.err.println("Errore durante la scrittura del file ARFF: " + e.getMessage());
+            logger.error("Errore in the writing of the file ARFF " + e.getMessage());
             throw e;
         }
     }
@@ -33,7 +40,7 @@ public class ArffUtility {
         File baseDirectory = new File(baseDir);
 
         if (!baseDirectory.exists() || !baseDirectory.isDirectory()) {
-            System.err.println("La directory iniziale non esiste o non è una directory: " + baseDir);
+            logger.error("The start directory is not a directory: " + baseDir);
             return null;
         }
 
@@ -43,9 +50,9 @@ public class ArffUtility {
         if (!dir.exists()) {
             boolean created = dir.mkdirs();
             if (created) {
-                System.out.println("Directory creata: " + dir.getAbsolutePath());
+                logger.info("Directory created: " + dir.getAbsolutePath());
             } else {
-                System.err.println("Impossibile creare la directory: " + dir.getAbsolutePath());
+                logger.info("Impossibile creation: " + dir.getAbsolutePath());
                 return null;
             }
         }
