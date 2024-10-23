@@ -20,27 +20,30 @@ public class ArffUtility {
     public static void createArff(List<JavaClass> classes, String title, int numberTraining, String project) throws IOException {
         project = project.toLowerCase();
         File directory = createDirectory(project, title);
-        String fileName = String.format("%s_%d_%s.csv", title, numberTraining, project);
+        if (directory == null) {
+            logger.error("Directory creation failed for project: {} and title: {}", project, title);
+            return;
+        }
 
+        String fileName = String.format("%s_%d_%s.arff", title, numberTraining, project);
         File arffFile = new File(directory, fileName);
 
         try (BufferedWriter fileWriter = new BufferedWriter(new FileWriter(arffFile))) {
             writeArffHeader(fileWriter, project, title, numberTraining);
             writeArffData(fileWriter, classes);
-            logger.info("File ARFF created: " + arffFile.getAbsolutePath());
+            logger.info("File ARFF created: {}", arffFile.getAbsolutePath());
         } catch (IOException e) {
-            logger.error("Errore in the writing of the file ARFF " + e.getMessage());
+            logger.error("Error writing the ARFF file: {}", e.getMessage());
             throw e;
         }
     }
 
     private static File createDirectory(String project, String title) {
-
         String baseDir = "src/main/dataset/arffDataset";
         File baseDirectory = new File(baseDir);
 
         if (!baseDirectory.exists() || !baseDirectory.isDirectory()) {
-            logger.error("The start directory is not a directory: " + baseDir);
+            logger.error("The start directory is not a valid directory: {}", baseDir);
             return null;
         }
 
@@ -50,9 +53,9 @@ public class ArffUtility {
         if (!dir.exists()) {
             boolean created = dir.mkdirs();
             if (created) {
-                logger.info("Directory created: " + dir.getAbsolutePath());
+                logger.info("Directory created: {}", dir.getAbsolutePath());
             } else {
-                logger.info("Impossibile creation: " + dir.getAbsolutePath());
+                logger.error("Failed to create directory: {}", dir.getAbsolutePath());
                 return null;
             }
         }
@@ -97,4 +100,3 @@ public class ArffUtility {
         }
     }
 }
-

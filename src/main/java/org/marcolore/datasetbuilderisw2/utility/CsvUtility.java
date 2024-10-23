@@ -16,13 +16,14 @@ public class CsvUtility {
     }
 
     private static final Logger logger = LoggerFactory.getLogger(CsvUtility.class);
+
     public static void writeCsvFile(List<JavaClass> javaClassList, String title, int number, String projectName) {
 
         String baseDir = "src/main/dataset/csvDataset";
         File baseDirectory = new File(baseDir);
 
         if (!baseDirectory.exists() || !baseDirectory.isDirectory()) {
-            logger.error("Start directory doesn't exists: " + baseDir);
+            logger.error("Start directory doesn't exist: {}", baseDir);
             return;
         }
 
@@ -32,9 +33,9 @@ public class CsvUtility {
         if (!directory.exists()) {
             boolean created = directory.mkdirs();
             if (created) {
-                logger.info("Directory created: " + directory.getAbsolutePath());
+                logger.info("Directory created: {}", directory.getAbsolutePath());
             } else {
-                logger.error("Impossible create the directory: " + directory.getAbsolutePath());
+                logger.error("Impossible to create the directory: {}", directory.getAbsolutePath());
                 return;
             }
         }
@@ -67,9 +68,9 @@ public class CsvUtility {
                 writer.newLine();
             }
 
-            logger.info("CSV file created: " + csvFile.getAbsolutePath());
+            logger.info("CSV file created: {}", csvFile.getAbsolutePath());
         } catch (IOException e) {
-            logger.error("Error in the writing: " + e.getMessage());
+            logger.error("Error in the writing: {}", e.getMessage());
         }
     }
 
@@ -81,3 +82,4 @@ public class CsvUtility {
         return value;
     }
 }
+

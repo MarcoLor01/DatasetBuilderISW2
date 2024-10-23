@@ -71,15 +71,9 @@ public class MetricsCalculatorController {
 
         while (i < length) {
             if (i < length - 1 && code.charAt(i) == '/' && code.charAt(i + 1) == '/') {
-                i += 2;
-                while (i < length && code.charAt(i) != '\n') {
-                    i++;
-                }
+                i = getI(i, length, code.charAt(i) != '\n');
             } else if (i < length - 1 && code.charAt(i) == '/' && code.charAt(i + 1) == '*') {
-                i += 2;
-                while (i < length - 1 && !(code.charAt(i) == '*' && code.charAt(i + 1) == '/')) {
-                    i++;
-                }
+                i = getI(i, length - 1, !(code.charAt(i) == '*' && code.charAt(i + 1) == '/'));
                 i += 2;
             } else {
                 result.append(code.charAt(i));
@@ -88,6 +82,14 @@ public class MetricsCalculatorController {
         }
 
         return result.toString();
+    }
+
+    private static int getI(int i, int length, boolean code) {
+        i += 2;
+        while (i < length && code) {
+            i++;
+        }
+        return i;
     }
 
     private void calculateCyclomaticComplexity() {
