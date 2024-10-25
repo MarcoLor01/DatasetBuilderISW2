@@ -20,7 +20,6 @@ import java.io.InputStream;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -28,15 +27,25 @@ import org.slf4j.LoggerFactory;
 
 public class Main {
 
-    public static final String PROJECT_NAME = "BOOKKEEPER";
+
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
     private static String initialPath;
 
-    public static void main(String[] args) throws IOException, GitAPIException {
+    public static void main(String[] args) throws GitAPIException, IOException {
+        logger.info("Start Bookkeeper extraction");
+        extractData("BOOKKEEPER");
+        logger.info("Start Avro extraction");
+        extractData("AVRO");
+    }
+
+    public static void extractData(String projectName) throws IOException, GitAPIException {
 
         takeCorrectPath();
 
-        JiraController jiraController = new JiraController(PROJECT_NAME);
+        List<JavaClass> javaClassList;
+        List<Release> releaseList;
+
+        JiraController jiraController = new JiraController(projectName);
 
         List<Release> releases = jiraController.getReleaseInfo(); //Get all releases
         logger.info("Retrieved {} releases", releases.size());
@@ -52,37 +61,43 @@ public class Main {
         logger.info("Validated {} tickets", tickets.size());
 
         // Setting the repo path
-        String path = initialPath + PROJECT_NAME.toLowerCase();
+        String path = initialPath + projectName.toLowerCase();
 
-        List<JavaClass> javaClassList;
-        List<Release> releaseList;
+        GitController gitController = new GitController(path);
 
-        try (GitController gitController = new GitController(path)) {
+        List<RevCommit> commitsList = gitController.getCommits(releases);
+        logger.info("Retrieved {} commits", commitsList.size());
+        logger.info("Actual number of releases {}", releases.size());
 
-            List<RevCommit> commitsList = gitController.getCommits(releases);
-            logger.info("Retrieved {} commits", commitsList.size());
-            logger.info("Actual number of releases {}", releases.size());
+        // Now links the commits with the tickets
+        TicketUtility.linkCommitTickets(tickets, commitsList);
+        logger.info("Linked commits to tickets");
 
-            // Now links the commits with the tickets
-            TicketUtility.linkCommitTickets(tickets, commitsList);
-            logger.info("Linked commits to tickets");
-            //Now we take only the first half releases
-            releaseList = ReleaseUtility.removeHalfReleases(releases);
-            logger.info("Actual number of releases {}", releaseList.size());
-            //Now we need to extract our Java classes
-            javaClassList = gitController.retrieveClasses(releaseList);
-            logger.info("Extracted {} classes", javaClassList.size());
-            //Now we need to compute the metrics
-            MetricsCalculatorController metricsCalculator = new MetricsCalculatorController(javaClassList, commitsList, gitController);
-            metricsCalculator.calculateMetrics();
-            logger.info("Metrics Calculated");
-            createCsvFiles(javaClassList, releaseList, tickets, gitController, metricsCalculator);
+        //Now we take only the first half releases
+        releaseList = ReleaseUtility.removeHalfReleases(releases);
+        logger.info("Actual number of releases {}", releaseList.size());
+
+        //Now we need to extract our Java classes
+        javaClassList = gitController.retrieveClasses(releaseList);
+        logger.info("Extracted {} classes", javaClassList.size());
+
+        //Now we need to compute the metrics
+        MetricsCalculatorController metricsCalculator = new MetricsCalculatorController(javaClassList, gitController);
+        List<JavaClass> classWithMetrics = metricsCalculator.calculateMetrics();
+        logger.info("Metrics Calculated");
+
+        createCsvFiles(classWithMetrics, releaseList, tickets, gitController, metricsCalculator, projectName);
+
         }
 
 
-    }
-
-    public static void createCsvFiles(List<JavaClass> javaClassList, List<Release> releaseList, List<Ticket> tickets, GitController gitController, MetricsCalculatorController metricsCalculatorController) throws IOException {
+    public static void createCsvFiles(List<JavaClass> javaClassList,
+                                      List<Release> releaseList,
+                                      List<Ticket> tickets,
+                                      GitController gitController,
+                                      MetricsCalculatorController metricsCalculatorController,
+                                      String projectName)
+            throws IOException {
         /* We need to create the training and the test set, we start (for test set)
         from release 3 to the last release who is the number tot_release / 2 */
         int firstRelease = 3;
@@ -91,84 +106,62 @@ public class Main {
         for(int i=firstRelease;i<=(releaseList.size());i++){
             //Now we use the first release as the test set
             List<JavaClass> trainingClassList = new ArrayList<>(javaClassList);
-            int testRelease = i;
-            trainingClassList.removeIf(javaClass ->
-                    Optional.ofNullable(javaClass.getRelease())
-                            .map(release -> release.getId() >= testRelease)
-                            .orElse(false)
-            );
 
-            List<Ticket> trainingTickets = new ArrayList<>(tickets);
-            trainingTickets.removeIf(ticket ->
-                    Optional.ofNullable(ticket.getFixedVersion())
-                            .map(release -> release.getId() >= testRelease)
-                            .orElse(false)
-            );
+            ReleaseUtility.checkReleaseId(trainingClassList, i);
+            List<Ticket> trainingTickets = TicketUtility.checkFixedVersion(tickets, i);
+            List<JavaClass> testingClassList = ReleaseUtility.getJavaClassesFromRelease(javaClassList, i);
 
-            List<JavaClass> testingClassList = new ArrayList<>(javaClassList);
-            testingClassList.removeIf(javaClass ->
-                    Optional.ofNullable(javaClass.getRelease())
-                            .map(release -> release.getId() != testRelease)
-                            .orElse(false)
-            );
+            setBuggyOrNot(trainingTickets, trainingClassList, gitController, releaseList);
+            setBuggyOrNot(trainingTickets, testingClassList, gitController, releaseList);
 
-            setBuggyOrNot(tickets, trainingClassList, gitController, releaseList);
-            setBuggyOrNot(tickets, testingClassList, gitController, releaseList);
             metricsCalculatorController.calculateNumberFix(trainingClassList);
             metricsCalculatorController.calculateNumberFix(testingClassList);
-            CsvUtility.writeCsvFile(trainingClassList, "Training", numberOfTraining, PROJECT_NAME);
-            CsvUtility.writeCsvFile(testingClassList, "Testing", numberOfTraining, PROJECT_NAME);
-            ArffUtility.createArff(trainingClassList, "Training", numberOfTraining, PROJECT_NAME);
-            ArffUtility.createArff(testingClassList, "Testing", numberOfTraining, PROJECT_NAME);
+
+            writeDatasets(projectName, numberOfTraining, trainingClassList, testingClassList);
+
             numberOfTraining++;
         }
 
     }
 
-    public static void setBuggyOrNot(List<Ticket> ticketList, List<JavaClass> allProjectClasses, GitController gitController, List<Release> releaseList) throws IOException {
-        for (Ticket ticket : ticketList) {
-            processTicket(ticket, allProjectClasses, gitController, releaseList);
-        }
 
+    private static void writeDatasets(String projectName, int numberOfTraining, List<JavaClass> trainingClassList, List<JavaClass> testingClassList) throws IOException {
+        CsvUtility.writeCsvFile(trainingClassList, "Training", numberOfTraining, projectName);
+        CsvUtility.writeCsvFile(testingClassList, "Testing", numberOfTraining, projectName);
+        ArffUtility.createArff(trainingClassList, "Training", numberOfTraining, projectName);
+        ArffUtility.createArff(testingClassList, "Testing", numberOfTraining, projectName);
     }
 
+    public static void setBuggyOrNot(List<Ticket> ticketList, List<JavaClass> allProjectClasses, GitController gitController, List<Release> releaseList) throws IOException {
+        for (Ticket ticket : ticketList) {
+            List<RevCommit> ticketCommitList = ticket.getCommitList();
+            Release injectedVersion = ticket.getInjectedVersion();
 
-    private static void processTicket(Ticket ticket, List<JavaClass> allProjectClasses, GitController gitController, List<Release> releases) throws IOException {
-        List<RevCommit> ticketCommitList = ticket.getCommitList();
-        Release injectedVersion = ticket.getInjectedVersion();
+            for (RevCommit commit : ticketCommitList) {
+                int releaseOfCommitId = ReleaseUtility.matchCommitsRelease(commit.getCommitterIdent().getWhen().toInstant().
+                        atZone(ZoneId.systemDefault()).toLocalDateTime(), releaseList);
+                Release releaseOfCommit = ReleaseUtility.releaseFromId(releaseList, releaseOfCommitId);
+                List<String> modifiedClassesNames = gitController.findTouchedClassFromCommit(commit);
 
-        for (RevCommit commit : ticketCommitList) {
-            int releaseOfCommitId = ReleaseUtility.matchCommitsRelease(commit.getCommitterIdent().getWhen().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(), releases);
-            Release releaseOfCommit = ReleaseUtility.releaseFromId(releases, releaseOfCommitId);
-            List<String> modifiedClassesNames = gitController.findTouchedClassFromCommit(commit);
-
-
-            // Etichetta le classi come buggy se necessario
-            for (String modifiedClass : modifiedClassesNames) {
-                labelBuggyClasses(modifiedClass, injectedVersion, releaseOfCommit, allProjectClasses, commit);
+                // Etichetta le classi come buggy se necessario
+                for (String modifiedClass : modifiedClassesNames) {
+                    labelBuggyClasses(modifiedClass, injectedVersion, releaseOfCommit, allProjectClasses, commit);
+                }
             }
         }
+
     }
 
     private static void labelBuggyClasses(String modifiedClass, Release injectedVersion, Release fixedVersion, List<JavaClass> allProjectClasses, RevCommit commit) {
 
         for (JavaClass projectClass : allProjectClasses) {
-            updateFixCommits(projectClass, commit);
-            checkAndSetBuggy(projectClass, modifiedClass, injectedVersion, fixedVersion);
-        }
-    }
 
-    private static void updateFixCommits(JavaClass projectClass, RevCommit commit) {
-
-        if (projectClass.getListOfCommit().contains(commit) && !projectClass.getFixCommits().contains(commit)) {
-            projectClass.addFixCommit(commit);
-        }
-    }
-
-    private static void checkAndSetBuggy(JavaClass projectClass, String modifiedClass, Release injectedVersion, Release fixedVersion) {
-
-        if (isClassModifiedInBuggyVersion(projectClass, modifiedClass, injectedVersion, fixedVersion)) {
-            projectClass.setBuggy(true);
+            if (projectClass.getListOfCommit().contains(commit) && !projectClass.getFixCommits().contains(commit)) {
+                projectClass.addFixCommit(commit);
+            }
+            if (isClassModifiedInBuggyVersion(projectClass, modifiedClass, injectedVersion, fixedVersion)) {
+                projectClass.setBuggy(true);
+            }
         }
     }
 
@@ -196,4 +189,5 @@ public class Main {
             logger.error("Error calculating path");
         }
     }
+
 }

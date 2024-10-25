@@ -14,23 +14,24 @@ import java.util.regex.Pattern;
 public class MetricsCalculatorController {
 
     private final List<JavaClass> javaClassList;
-    private final List<RevCommit> commitList;
     private final GitController gitController;
 
+    private int i =0;
 
-    public MetricsCalculatorController(List<JavaClass> listOfClasses, List<RevCommit> listOfCommit, GitController controller) {
+
+    public MetricsCalculatorController(List<JavaClass> listOfClasses, GitController controller) {
         javaClassList = listOfClasses;
-        commitList = listOfCommit;
         gitController = controller;
     }
 
-    public void calculateMetrics() throws GitAPIException, IOException {
+    public List<JavaClass> calculateMetrics() throws GitAPIException, IOException {
         calculateLoc();
-        calculateNumberOfAuthors();
-        calculateNumberOfRevisions();
+        calculateNumberOfAuthorsRevisionsFix();
         calculateLocFromCommitMeasures();
         calculateCyclomaticComplexity();
         calculateTimeBetweenCommit();
+
+        return this.javaClassList;
     }
 
     private void calculateTimeBetweenCommit() {
@@ -67,29 +68,36 @@ public class MetricsCalculatorController {
     public static String removeComments(String code) {
         StringBuilder result = new StringBuilder();
         int length = code.length();
-        int i = 0;
+        boolean inSingleLineComment = false;
+        boolean inMultiLineComment = false;
 
-        while (i < length) {
-            if (i < length - 1 && code.charAt(i) == '/' && code.charAt(i + 1) == '/') {
-                i = getI(i, length, code.charAt(i) != '\n');
-            } else if (i < length - 1 && code.charAt(i) == '/' && code.charAt(i + 1) == '*') {
-                i = getI(i, length - 1, !(code.charAt(i) == '*' && code.charAt(i + 1) == '/'));
-                i += 2;
+        for (int i = 0; i < length; i++) {
+
+            if (inSingleLineComment) {
+                if (code.charAt(i) == '\n') {
+                    inSingleLineComment = false;
+                    result.append(code.charAt(i));
+                }
+
+            } else if (inMultiLineComment) {
+                if (i < length - 1 && code.charAt(i) == '*' && code.charAt(i + 1) == '/') {
+                    inMultiLineComment = false;
+                    i++;
+                }
             } else {
-                result.append(code.charAt(i));
-                i++;
+                if (i < length - 1 && code.charAt(i) == '/' && code.charAt(i + 1) == '/') {
+                    inSingleLineComment = true;
+                    i++;
+                } else if (i < length - 1 && code.charAt(i) == '/' && code.charAt(i + 1) == '*') {
+                    inMultiLineComment = true;
+                    i++;
+                } else {
+                    result.append(code.charAt(i));
+                }
             }
         }
 
         return result.toString();
-    }
-
-    private static int getI(int i, int length, boolean code) {
-        i += 2;
-        while (i < length && code) {
-            i++;
-        }
-        return i;
     }
 
     private void calculateCyclomaticComplexity() {
@@ -149,37 +157,21 @@ public class MetricsCalculatorController {
 
     private void calculateLocFromCommitMeasures() throws IOException, GitAPIException {
         for(JavaClass javaClass : javaClassList){
-            List<RevCommit> commits = javaClass.getListOfCommit();
-            for(RevCommit commit : commits){
-                if(commit.getParentCount() == 0){ //Initial commit, skip
-                    continue;
-                }
-                gitController.calculateLocMeasures(commit, commit.getParent(0), javaClass);
 
-            }
+            List<RevCommit> commits = javaClass.getListOfCommit();
+            gitController.calculateLocMeasures(javaClass);
             if(!commits.isEmpty()) {
                 javaClass.setAverageAddedLines((float) javaClass.getTotalAddedLines() / commits.size());
                 javaClass.setAverageChurn((float) javaClass.getTotalChurn() / commits.size());
             }
-
-        }
-
-    }
-
-    public void calculateNumberFix(List<JavaClass> javaClassList) {
-        for (JavaClass javaClass : javaClassList) {
-            javaClass.setNumberFix(javaClass.getFixCommits().size());
         }
     }
 
-    private void calculateNumberOfRevisions() {
+    private void calculateNumberOfAuthorsRevisionsFix() {
         for(JavaClass javaClass : javaClassList){
+
             javaClass.setRevisionsNumber(javaClass.getListOfCommit().size());
-        }
-    }
 
-    private void calculateNumberOfAuthors() {
-        for(JavaClass javaClass : javaClassList){
             List<RevCommit> listOfCommit = javaClass.getListOfCommit();
             List<String> authorNames = new ArrayList<>();
             for (RevCommit revCommit : listOfCommit) {
@@ -192,11 +184,20 @@ public class MetricsCalculatorController {
         }
     }
 
+    public void calculateNumberFix(List<JavaClass> javaClassList) {
+
+        for(JavaClass javaClass : javaClassList) {
+            javaClass.setNumberFix(javaClass.getFixCommits().size());
+        }
+    }
+
     private void calculateLoc() {
 
         for (JavaClass javaClass : javaClassList) {
+
             int totalLoc = 0;
             String content = removeComments(javaClass.getFileContent());
+
             String[] lines = content.split("\n");
 
             for (String line : lines) {
@@ -208,5 +209,7 @@ public class MetricsCalculatorController {
             javaClass.setLoc(totalLoc);
         }
     }
+
+
 }
 

@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 public class ArffUtility {
 
@@ -32,9 +33,6 @@ public class ArffUtility {
             writeArffHeader(fileWriter, project, title, numberTraining);
             writeArffData(fileWriter, classes);
             logger.info("File ARFF created: {}", arffFile.getAbsolutePath());
-        } catch (IOException e) {
-            logger.error("Error writing the ARFF file: {}", e.getMessage());
-            throw e;
         }
     }
 
@@ -76,6 +74,7 @@ public class ArffUtility {
                 .append("@attribute number_fix numeric").append("\n")
                 .append("@attribute cyclomatic_complexity numeric").append("\n")
                 .append("@attribute average_churn numeric").append("\n")
+                .append("@attribute days_between_commits numeric").append("\n")
                 .append("@attribute buggy {'YES', 'NO'}").append("\n\n")
                 .append("@data").append("\n");
     }
@@ -83,7 +82,7 @@ public class ArffUtility {
     private static void writeArffData(BufferedWriter fileWriter, List<JavaClass> classes) throws IOException {
         for (JavaClass javaClass : classes) {
             String buggy = javaClass.isBuggy() ? "YES" : "NO";
-            String line = String.format("%d,%d,%d,%d,%d,%.2f,%d,%d,%d,%d,%.2f,%s",
+            String line = String.format(Locale.US, "%d,%d,%d,%d,%d,%.2f,%d,%d,%d,%d,%.2f,%.2f,%s",
                     javaClass.getLoc(),
                     javaClass.getAuthorsNumber(),
                     javaClass.getRevisionsNumber(),
@@ -95,6 +94,7 @@ public class ArffUtility {
                     javaClass.getNumberFix(),
                     javaClass.getCyclomaticComplexity(),
                     javaClass.getAverageChurn(),
+                    javaClass.getDaysBetweenCommits(),
                     buggy);
             fileWriter.append(line).append("\n");
         }

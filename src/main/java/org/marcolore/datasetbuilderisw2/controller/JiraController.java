@@ -49,6 +49,7 @@ public class JiraController {
         }
         // Ordering releases based on the release date
         releases.sort(Comparator.comparing(Release::getReleaseDate));
+
         // Now we can set an id
         int k = 0;
         while(k<releases.size()){
@@ -63,6 +64,7 @@ public class JiraController {
         int j;
         int i = 0;
         int total;
+
         //Get JSON API for closed bugs w/ AV in the project
         ArrayList<Ticket> tickets = new ArrayList<>();
 

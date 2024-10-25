@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.marcolore.datasetbuilderisw2.utility.ReleaseUtility.checkIfNewClassTouched;
@@ -49,9 +50,10 @@ public class GitController implements AutoCloseable {
             Iterable<RevCommit> commitIterable = git.log().all().call(); //Take all the commits
             for (RevCommit commit : commitIterable) {
                 listOfCommit.add(commit);
-                LocalDateTime commitDate = commit.getCommitterIdent().getWhen().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                LocalDateTime commitDate = commit.getCommitterIdent().getWhen().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(); //Date of Commit
 
                 int indexRelease = ReleaseUtility.matchCommitsRelease(commitDate, releaseList);
+
                 for (Release release : releaseList) {
                     if (release.getId().equals(indexRelease)) {
                         release.getCommitList().add(commit);
@@ -85,9 +87,8 @@ public class GitController implements AutoCloseable {
                 for (RevCommit commit : releaseCommits) {
                     ObjectId idTree = commit.getTree(); //References to this commit tree
                     Repository repository = git.getRepository();
-                    TreeWalk treeWalk = new TreeWalk(repository);
-                    treeWalk.reset(idTree); //I want to explore this tree
-                    treeWalk.setRecursive(true); //Go in the subdirectory
+                    TreeWalk treeWalk = getTreeWalk(idTree, repository);
+
                     while (treeWalk.next()) {
                         JavaClass file = loadJavaClassFromTreeWalk(treeWalk, release, repository, javaClassRelease);
                         if (file != null) {
@@ -109,6 +110,13 @@ public class GitController implements AutoCloseable {
         return javaClassList;
     }
 
+    private static TreeWalk getTreeWalk(ObjectId idTree, Repository repository) throws IOException {
+        TreeWalk treeWalk = new TreeWalk(repository);
+        treeWalk.reset(idTree); //I want to explore this tree
+        treeWalk.setRecursive(true); //Go in the subdirectory
+        return treeWalk;
+    }
+
     private JavaClass loadJavaClassFromTreeWalk(TreeWalk treeWalk, Release release, Repository repository, List<String> javaClassRelease) throws IOException {
 
         String filename = treeWalk.getPathString();
@@ -122,7 +130,7 @@ public class GitController implements AutoCloseable {
             String fileContent = output.toString();
             javaClassRelease.add(filename); //For duplicate
             return new JavaClass(filename, release, fileContent);
-            }
+        }
 
         return null;
     }
@@ -144,48 +152,49 @@ public class GitController implements AutoCloseable {
         }
     }
 
-    public void calculateLocMeasures(RevCommit commit, RevCommit parentCommit, JavaClass javaClass) throws IOException, GitAPIException {
-        int locTouched = 0;
-        int totalAddedLines = 0;
-        int maxAddedLines = 0;
-        int totalChurn = 0;
-        int maxChurn = 0;
+    public void calculateLocMeasures(JavaClass javaClass) throws IOException, GitAPIException {
+        List<Integer> locTouched = new ArrayList<>();
+        List<Integer> totalAddedLines = new ArrayList<>();
+        List<Integer> totalChurn = new ArrayList<>();
 
-        try (ObjectReader reader = git.getRepository().newObjectReader()) {
-            CanonicalTreeParser commitTree = prepareTreeParser(reader, commit);
-            CanonicalTreeParser commitParentTree = prepareTreeParser(reader, parentCommit);
+        for(RevCommit commit : javaClass.getListOfCommit()) {
+            try (ObjectReader reader = git.getRepository().newObjectReader()) {
+                if (commit.getParentCount() == 0) {
+                    continue;
+                }
+                CanonicalTreeParser commitTree = prepareTreeParser(reader, commit);
+                CanonicalTreeParser commitParentTree = prepareTreeParser(reader, commit.getParent(0));
 
-            List<DiffEntry> diffs = git.diff()
-                    .setNewTree(commitTree)
-                    .setOldTree(commitParentTree)
-                    .call();
+                List<DiffEntry> diffs = git.diff()
+                        .setNewTree(commitTree)
+                        .setOldTree(commitParentTree)
+                        .call();
 
-            for (DiffEntry entry : diffs) {
-                if (entry.getNewPath().equals(javaClass.getClassName())) {
-                    locTouched += calculateLocTouched(entry);
-                    int addedLines = calculateTotalAddLines(entry);
-                    totalAddedLines += addedLines;
-                    maxAddedLines = Math.max(javaClass.getMaxAddedLines(), addedLines);
-                    int churn = calculateTotalChurn(entry);
-                    totalChurn += churn;
-                    maxChurn = Math.max(javaClass.getMaxChurn(), churn);
+                for (DiffEntry entry : diffs) {
+                    if (entry.getNewPath().equals(javaClass.getClassName())) {
+                        locTouched.add(calculateLocTouched(entry));
+                        totalAddedLines.add(calculateTotalAddLines(entry));
+                        totalChurn.add(calculateTotalChurn(entry));
+                    }
                 }
             }
-
-            javaClass.setTotalChurn(totalChurn);
-            javaClass.setTouchedLoc(locTouched);
-            javaClass.setTotalAddedLines(totalAddedLines);
-            javaClass.setMaxAddedLines(maxAddedLines);
-            javaClass.setMaxChurn(maxChurn);
         }
+
+        javaClass.setTouchedLoc(locTouched.stream().mapToInt(Integer::intValue).sum());
+        javaClass.setTotalChurn(totalChurn.stream().mapToInt(Integer::intValue).sum());
+        javaClass.setTotalAddedLines(totalAddedLines.stream().mapToInt(Integer::intValue).sum());
+        javaClass.setMaxAddedLines(totalAddedLines.isEmpty() ? 0 : Collections.max(totalAddedLines));
+        javaClass.setMaxChurn(totalChurn.isEmpty() ? 0 : Collections.max(totalChurn));
     }
 
     private int calculateTotalAddLines(DiffEntry entry) throws IOException {
         int totalAddLines = 0;
+
         FileHeader fileHeader = getFileHeader(entry);
         for (Edit edit : fileHeader.toEditList()){
             totalAddLines += (edit.getEndB() - edit.getBeginB());
         }
+
         return totalAddLines;
     }
 
@@ -205,9 +214,8 @@ public class GitController implements AutoCloseable {
         FileHeader fileHeader = getFileHeader(entry);
 
         for (Edit edit : fileHeader.toEditList()) {
-            churn += (edit.getEndB() - edit.getBeginB()) - (edit.getEndA() - edit.getBeginA());
+            churn += Math.abs((edit.getEndB() - edit.getBeginB()) - (edit.getEndA() - edit.getBeginA()));
         }
-
         return churn;
     }
 

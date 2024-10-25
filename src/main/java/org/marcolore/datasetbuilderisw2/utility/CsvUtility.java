@@ -44,11 +44,11 @@ public class CsvUtility {
         File csvFile = new File(directory, fileName);
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(csvFile))) {
-            writer.write("className,loc,authorsNumber,revisionsNumber,touchedLoc,totalAddedLines,averageAddedLines,maxAddedLines,totalChurn,averageChurn,maxChurn,numberFix,cyclomaticComplexity,daysBetweenCommits,buggy");
+            writer.write("className,loc,authorsNumber,revisionsNumber,touchedLoc,totalAddedLines,averageAddedLines,maxAddedLines,totalChurn,maxChurn,numberFix,cyclomaticComplexity,averageChurn,daysBetweenCommits,buggy");
             writer.newLine();
 
             for (JavaClass javaClass : javaClassList) {
-                String line = String.format("\"%s\",%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%b",
+                String line = String.format("\"%s\",%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%b",
                         escapeCsv(javaClass.getClassName()),
                         javaClass.getLoc(),
                         javaClass.getAuthorsNumber(),
@@ -62,6 +62,7 @@ public class CsvUtility {
                         javaClass.getNumberFix(),
                         javaClass.getCyclomaticComplexity(),
                         javaClass.getAverageChurn(),
+                        javaClass.getDaysBetweenCommits(),
                         javaClass.isBuggy());
 
                 writer.write(line);

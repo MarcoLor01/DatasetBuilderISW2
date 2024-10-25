@@ -3,6 +3,7 @@ package org.marcolore.datasetbuilderisw2.utility;
 import org.json.JSONArray;
 import org.marcolore.datasetbuilderisw2.model.JavaClass;
 import org.marcolore.datasetbuilderisw2.model.Release;
+import org.marcolore.datasetbuilderisw2.model.Ticket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,27 +87,35 @@ public class ReleaseUtility {
 
     public static List<Release> removeHalfReleases(List<Release> releases) {
         int halfReleasesNumber = releases.size() / 2;
-        List<Release> firstHalf = new ArrayList<>();
-        for(int i=0; i< halfReleasesNumber; i++){
-            firstHalf.add(releases.get(i));
-        }
-
-        return firstHalf;
+        return new ArrayList<>(releases.subList(0, halfReleasesNumber));
     }
 
     public static void checkIfNewClassTouched(List<Release> releaseList){
 
         for(int i=0;i<releaseList.size();i++){
             List<JavaClass> classList = releaseList.get(i).getJavaClassList();
-            if(classList.isEmpty() && i != 0){
-                releaseList.get(i).setJavaClassList(releaseList.get(i-1).getJavaClassList());
-                logger.info("Release {} have {0 class", i);
-            } else if(classList.isEmpty()) {
-                logger.error("First release have 0 class");
-            } else{
-                logger.info("Release {} have {} class", i, classList.size());
+            if(classList.isEmpty() && i != 0) {
+                releaseList.get(i).setJavaClassList(releaseList.get(i - 1).getJavaClassList());
             }
         }
+    }
+
+    public static void checkReleaseId(List<JavaClass> trainingClassList, int testRelease) {
+        trainingClassList.removeIf(javaClass ->
+                Optional.ofNullable(javaClass.getRelease())
+                        .map(release -> release.getId() >= testRelease)
+                        .orElse(false)
+        );
+    }
+
+    public static List<JavaClass> getJavaClassesFromRelease(List<JavaClass> javaClassList, int testRelease) {
+        List<JavaClass> testingClassList = new ArrayList<>(javaClassList);
+        testingClassList.removeIf(javaClass ->
+                Optional.ofNullable(javaClass.getRelease())
+                        .map(release -> release.getId() != testRelease)
+                        .orElse(false)
+        );
+        return testingClassList;
     }
 
 }

@@ -31,3 +31,5 @@ Calcolo: Churn totale = Righe aggiunte + righe rimosse, Churn medio per commit: 
 
 13) Time between commit: La frequenza con cui la classe viene modificata. Se una classe viene modificata troppo frequentemente, potrebbe essere instabile.
 Calcolo la differenza di giorni e faccio la media.
+
+PROBLEMA: MaxAddedLines uguale a MaxChurn, controllare il resto della tabella

@@ -43,9 +43,11 @@ public class TicketUtility {
     }
 
     public static void setAV(Ticket ticket, List<Release> releases) {
+
         Integer injectedVersion = ticket.getInjectedVersion().getId();
         Integer fixedVersion = ticket.getFixedVersion().getId();
         ticket.setAffectedReleases(new ArrayList<>());
+
         for (Release release : releases) {
             if (release.getId() >= injectedVersion && release.getId() < fixedVersion) {
                 ticket.addAffectedReleases(release);
@@ -66,7 +68,6 @@ public class TicketUtility {
                     - ((ticketWithoutIV.getFixedVersion().getId() - ticketWithoutIV.getOpeningVersion().getId()) * p));
         }
 
-
         if (iv < 1) { //Index not valid
             iv = 1;
         }
@@ -79,12 +80,11 @@ public class TicketUtility {
             String key = ticket.getKey();
 
             for (RevCommit commit : commits) {
-                String commitText = commit.getFullMessage();
 
                 LocalDateTime commitDate = commit.getCommitterIdent().getWhen().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
                 LocalDate commitLocalDate = commitDate.toLocalDate();
 
-                    if (existsLinkMessageCommit(commitText, key) && !commitLocalDate.isAfter(ticket.getResolutionDate().toLocalDate())
+                    if (existsLinkMessageCommit(commit.getFullMessage(), key) && !commitLocalDate.isAfter(ticket.getResolutionDate().toLocalDate())
                             && !commitLocalDate.isBefore(ticket.getCreationDate().toLocalDate())) {
                         ticket.getCommitList().add(commit);
                     }
@@ -98,6 +98,16 @@ public class TicketUtility {
         return message.contains(ticketID + "\n") || message.contains(ticketID + " ") || message.contains(ticketID + ":")
                 || message.contains(ticketID + ".") || message.contains(ticketID + "/") || message.endsWith(ticketID) ||
                 message.contains(ticketID + "]") || message.contains(ticketID + "_") || message.contains(ticketID + "-") || message.contains(ticketID + ")");
+    }
+
+    public static List<Ticket> checkFixedVersion(List<Ticket> tickets, int testRelease) {
+        List<Ticket> trainingTickets = new ArrayList<>(tickets);
+        trainingTickets.removeIf(ticket ->
+                Optional.ofNullable(ticket.getFixedVersion())
+                        .map(release -> release.getId() >= testRelease)
+                        .orElse(false)
+        );
+        return trainingTickets;
     }
 
 }
