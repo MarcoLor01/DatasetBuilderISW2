@@ -40,7 +40,7 @@ public class CsvUtility {
             }
         }
 
-        String fileName = String.format("%s_%d_%s.csv", title, number, projectName);
+        String fileName = String.format("%s_%d_%s.csv", title, number, projectName.toLowerCase());
         File csvFile = new File(directory, fileName);
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(csvFile))) {

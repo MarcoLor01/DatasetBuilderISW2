@@ -2,17 +2,11 @@ package org.marcolore.datasetbuilderisw2;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.marcolore.datasetbuilderisw2.controller.GitController;
-import org.marcolore.datasetbuilderisw2.controller.JiraController;
-import org.marcolore.datasetbuilderisw2.controller.MetricsCalculatorController;
-import org.marcolore.datasetbuilderisw2.controller.ProportionController;
+import org.marcolore.datasetbuilderisw2.controller.*;
 import org.marcolore.datasetbuilderisw2.model.JavaClass;
 import org.marcolore.datasetbuilderisw2.model.Release;
 import org.marcolore.datasetbuilderisw2.model.Ticket;
-import org.marcolore.datasetbuilderisw2.utility.ArffUtility;
-import org.marcolore.datasetbuilderisw2.utility.CsvUtility;
-import org.marcolore.datasetbuilderisw2.utility.ReleaseUtility;
-import org.marcolore.datasetbuilderisw2.utility.TicketUtility;
+import org.marcolore.datasetbuilderisw2.utility.*;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -86,20 +80,25 @@ public class Main {
         List<JavaClass> classWithMetrics = metricsCalculator.calculateMetrics();
         logger.info("Metrics Calculated");
 
-        createCsvFiles(classWithMetrics, releaseList, tickets, gitController, metricsCalculator, projectName);
+        //Creation of datasets
+        int iterationNumber = createDatasets(classWithMetrics, releaseList, tickets, gitController, metricsCalculator, projectName);
+        //Now we want to use this Data with Weka
+        WekaController wekaController = new WekaController(projectName, iterationNumber - 1);
 
         }
 
 
-    public static void createCsvFiles(List<JavaClass> javaClassList,
+    public static int createDatasets(List<JavaClass> javaClassList,
                                       List<Release> releaseList,
                                       List<Ticket> tickets,
                                       GitController gitController,
                                       MetricsCalculatorController metricsCalculatorController,
                                       String projectName)
             throws IOException {
+
         /* We need to create the training and the test set, we start (for test set)
         from release 3 to the last release who is the number tot_release / 2 */
+
         int firstRelease = 3;
         int numberOfTraining = 1;
 
@@ -111,17 +110,19 @@ public class Main {
             List<Ticket> trainingTickets = TicketUtility.checkFixedVersion(tickets, i);
             List<JavaClass> testingClassList = ReleaseUtility.getJavaClassesFromRelease(javaClassList, i);
 
-            setBuggyOrNot(trainingTickets, trainingClassList, gitController, releaseList);
-            setBuggyOrNot(trainingTickets, testingClassList, gitController, releaseList);
+            ClassUtility.setBuggyOrNot(trainingTickets, trainingClassList, gitController, releaseList);
+            ClassUtility.setBuggyOrNot(trainingTickets, testingClassList, gitController, releaseList);
 
+            //Last metric
             metricsCalculatorController.calculateNumberFix(trainingClassList);
             metricsCalculatorController.calculateNumberFix(testingClassList);
 
             writeDatasets(projectName, numberOfTraining, trainingClassList, testingClassList);
 
             numberOfTraining++;
+            System.out.printf("Number of training %d\n ", numberOfTraining);
         }
-
+        return numberOfTraining;
     }
 
 
@@ -130,45 +131,6 @@ public class Main {
         CsvUtility.writeCsvFile(testingClassList, "Testing", numberOfTraining, projectName);
         ArffUtility.createArff(trainingClassList, "Training", numberOfTraining, projectName);
         ArffUtility.createArff(testingClassList, "Testing", numberOfTraining, projectName);
-    }
-
-    public static void setBuggyOrNot(List<Ticket> ticketList, List<JavaClass> allProjectClasses, GitController gitController, List<Release> releaseList) throws IOException {
-        for (Ticket ticket : ticketList) {
-            List<RevCommit> ticketCommitList = ticket.getCommitList();
-            Release injectedVersion = ticket.getInjectedVersion();
-
-            for (RevCommit commit : ticketCommitList) {
-                int releaseOfCommitId = ReleaseUtility.matchCommitsRelease(commit.getCommitterIdent().getWhen().toInstant().
-                        atZone(ZoneId.systemDefault()).toLocalDateTime(), releaseList);
-                Release releaseOfCommit = ReleaseUtility.releaseFromId(releaseList, releaseOfCommitId);
-                List<String> modifiedClassesNames = gitController.findTouchedClassFromCommit(commit);
-
-                // Etichetta le classi come buggy se necessario
-                for (String modifiedClass : modifiedClassesNames) {
-                    labelBuggyClasses(modifiedClass, injectedVersion, releaseOfCommit, allProjectClasses, commit);
-                }
-            }
-        }
-
-    }
-
-    private static void labelBuggyClasses(String modifiedClass, Release injectedVersion, Release fixedVersion, List<JavaClass> allProjectClasses, RevCommit commit) {
-
-        for (JavaClass projectClass : allProjectClasses) {
-
-            if (projectClass.getListOfCommit().contains(commit) && !projectClass.getFixCommits().contains(commit)) {
-                projectClass.addFixCommit(commit);
-            }
-            if (isClassModifiedInBuggyVersion(projectClass, modifiedClass, injectedVersion, fixedVersion)) {
-                projectClass.setBuggy(true);
-            }
-        }
-    }
-
-    private static boolean isClassModifiedInBuggyVersion(JavaClass projectClass, String modifiedClass, Release injectedVersion, Release fixedVersion) {
-        return projectClass.getClassName().equals(modifiedClass) &&
-                projectClass.getRelease().getId() < fixedVersion.getId() &&
-                projectClass.getRelease().getId() >= injectedVersion.getId();
     }
 
 

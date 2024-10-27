@@ -33,6 +33,14 @@
             <artifactId>org.eclipse.jgit</artifactId>
             <version>7.0.0.202409031743-r</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/nz.ac.waikato.cms.weka/weka-stable -->
+        <dependency>
+            <groupId>nz.ac.waikato.cms.weka</groupId>
+            <artifactId>weka-stable</artifactId>
+            <version>3.8.0</version>
+        </dependency>
+
     </dependencies>
 
     <properties>
