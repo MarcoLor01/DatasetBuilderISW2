@@ -11,7 +11,6 @@ import org.marcolore.datasetbuilderisw2.utility.*;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -25,14 +24,14 @@ public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
     private static String initialPath;
 
-    public static void main(String[] args) throws GitAPIException, IOException {
+    public static void main(String[] args) throws GitAPIException, IOException, Exception {
         logger.info("Start Bookkeeper extraction");
         extractData("BOOKKEEPER");
         logger.info("Start Avro extraction");
         extractData("AVRO");
     }
 
-    public static void extractData(String projectName) throws IOException, GitAPIException {
+    public static void extractData(String projectName) throws IOException, GitAPIException, Exception {
 
         takeCorrectPath();
 
@@ -84,7 +83,7 @@ public class Main {
         int iterationNumber = createDatasets(classWithMetrics, releaseList, tickets, gitController, metricsCalculator, projectName);
         //Now we want to use this Data with Weka
         WekaController wekaController = new WekaController(projectName, iterationNumber - 1);
-
+        wekaController.Classify();
         }
 
 
