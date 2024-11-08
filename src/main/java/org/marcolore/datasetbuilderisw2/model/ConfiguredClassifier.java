@@ -1,20 +1,18 @@
 package org.marcolore.datasetbuilderisw2.model;
 
-import weka.classifiers.Classifier;
+import weka.classifiers.bayes.NaiveBayes;
+import weka.classifiers.lazy.IBk;
+import weka.classifiers.trees.RandomForest;
 
 public class ConfiguredClassifier {
-    Classifier classifier;
+
+    IBk ibk;
+    RandomForest randomForest;
+    NaiveBayes naiveBayes;
     boolean balancingMethod;
     boolean featureSelection;
     boolean costSensitive;
 
-    public Classifier getClassifier() {
-        return classifier;
-    }
-
-    public void setClassifier(Classifier classifier) {
-        this.classifier = classifier;
-    }
 
     public boolean isBalancingMethod() {
         return balancingMethod;
@@ -38,5 +36,33 @@ public class ConfiguredClassifier {
 
     public void setCostSensitive(boolean costSensitive) {
         this.costSensitive = costSensitive;
+    }
+
+    public IBk getIbk() {
+        return ibk;
+    }
+
+    public void setIbk(IBk ibk) {
+        this.ibk = ibk;
+    }
+
+    public RandomForest getRandomForest() {
+        return randomForest;
+    }
+
+    public void setRandomForest(RandomForest randomForest) {
+        this.randomForest = randomForest;
+    }
+
+    public NaiveBayes getNaiveBayes() {
+        return naiveBayes;
+    }
+
+    public void setNaiveBayes(NaiveBayes naiveBayes) {
+        this.naiveBayes = naiveBayes;
+    }
+
+    public void prepareClassifier() {
+
     }
 }

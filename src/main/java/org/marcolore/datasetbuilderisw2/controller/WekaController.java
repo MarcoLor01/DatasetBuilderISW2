@@ -41,7 +41,7 @@ public class WekaController {
                 logger.error("Testing set null");
             }
 
-            //I want to use iBk, RandomForest, Naive Bayes and Multilayer Perceptron as a Models
+            //I want to use iBk, RandomForest, Naive Bayes
             evaluationModels.setTrainingSet(trainingSet);
             evaluationModels.setTestingSet(testingSet);
 
@@ -56,10 +56,10 @@ public class WekaController {
         for (ConfiguredClassifier classifier : configuredClassifiers){
                 Instances trainingSet = evaluationModels.getTrainingSet();
                 Instances testingSet = evaluationModels.getTestingSet();
-
                 Evaluation evaluation = new Evaluation(trainingSet);
-                classifier.getClassifier().buildClassifier(trainingSet);
-                evaluation.evaluateModel(classifier.getClassifier(), testingSet);
+                //Now we prepare the classifier based on the configuration, every classifier class has 3 different classifiers: iBk, RandomForest, NaiveBayes
+                classifier.prepareClassifier();
+                //evaluation.evaluateModel(classifier.getClassifier(), testingSet);
             }
 
     }
