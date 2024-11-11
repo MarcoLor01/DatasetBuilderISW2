@@ -105,17 +105,17 @@ public class EvaluationModels {
                 CostSensitiveClassifier costSensitiveClassifier = createModelCostSensitive();
                 costSensitiveClassifier.setClassifier(currentClassifier);
                 currentClassifier = costSensitiveClassifier;
-                System.out.print("Sono in costSensitive");
+                System.out.print("Sono in costSensitive\n");
             }
 
             if(configuredClassifier.isFeatureSelection()) {
                 currentClassifier = createModelFeatureSelection(currentClassifier);
-                System.out.print("Sono in costSensitive");
+                System.out.print("Sono in featureSelection\n");
             }
 
             if(configuredClassifier.isBalancingMethod()) {
                 currentClassifier = createModelSMOTE(currentClassifier, sizeMajorClass, sizeMinorClass);
-                System.out.print("Sono in costSensitive");
+                System.out.print("Sono in balancingMethod\n");
             }
 
             configuredClassifier.addReadyClassifier(currentClassifier);
