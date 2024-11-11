@@ -26,7 +26,6 @@ public class WekaController {
 
     public void Classify() throws Exception {
         EvaluationModels evaluationModels = new EvaluationModels();
-        evaluationModels.setConfiguredClassifiers();
 
         for(int i = 1; i < iteration ; i++) {
             Instances trainingSet = WekaUtility.convertData(project, i, "Training");
@@ -44,10 +43,10 @@ public class WekaController {
                 logger.error("Testing set null");
             }
 
-            //I want to use iBk, RandomForest, Naive Bayes
+
             evaluationModels.setTrainingSet(trainingSet);
             evaluationModels.setTestingSet(testingSet);
-
+            evaluationModels.setConfiguredClassifiers();
             evaluate(evaluationModels);
 
         }
@@ -65,5 +64,7 @@ public class WekaController {
             }
 
     }
+
+
 
 }

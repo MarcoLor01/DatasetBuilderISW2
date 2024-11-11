@@ -1,13 +1,15 @@
 package org.marcolore.datasetbuilderisw2.utility;
 
-import org.marcolore.datasetbuilderisw2.model.ConfiguredClassifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import weka.core.Instances;
 import weka.core.converters.ArffLoader;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Objects;
+import java.util.Properties;
 
 public class WekaUtility {
 
@@ -37,10 +39,22 @@ public class WekaUtility {
     }
 
     private static Instances getInstances(String project, int iteration, String type) throws IOException {
-        String arffFilePath = String.format("C:\\Users\\HP\\DatasetBuilderISW2\\src\\main\\dataset\\arffDataset\\%sDataset\\%s\\%s_%d_%s.arff"
-                ,
-                project.toLowerCase(), type, type, iteration, project.toLowerCase());
-
+        String arffFilePath;
+        Properties properties = new Properties();
+        try (FileInputStream fis = new FileInputStream("config.properties")) {
+            properties.load(fis);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load configuration file.", e);
+        }
+        if(Objects.equals(properties.getProperty("base.path"), "2")) {
+            arffFilePath = String.format("C:\\Users\\HP\\DatasetBuilderISW2\\src\\main\\dataset\\arffDataset\\%sDataset\\%s\\%s_%d_%s.arff"
+                    ,
+                    project.toLowerCase(), type, type, iteration, project.toLowerCase());
+        } else {
+            arffFilePath = String.format("C:\\Users\\Utente\\IdeaProjects\\isw2-definitivo\\src\\main\\dataset\\arffDataset\\%sDataset\\%s\\%s_%d_%s.arff"
+                    ,
+                    project.toLowerCase(), type, type, iteration, project.toLowerCase());
+        }
         File arffFile = new File(arffFilePath);
         if (!arffFile.exists()) {
             throw new IllegalArgumentException("File ARFF doesn't exists: " + arffFilePath);
@@ -50,12 +64,6 @@ public class WekaUtility {
         loader.setSource(arffFile);
 
         return loader.getDataSet();
-    }
-
-    public static void printConfiguredClassifier(ConfiguredClassifier configuredClassifier) {
-        System.out.printf("Balancing method: %s\n", configuredClassifier.getBalancingMethod().toString());
-        System.out.printf("Cost sensitive: %b\n", configuredClassifier.isCostSensitive());
-        System.out.printf("Feature selection: %b\n", configuredClassifier.isFeatureSelection());
     }
 
 }
