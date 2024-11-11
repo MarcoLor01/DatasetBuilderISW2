@@ -1,18 +1,21 @@
 package org.marcolore.datasetbuilderisw2.model;
 
-import weka.classifiers.bayes.NaiveBayes;
-import weka.classifiers.lazy.IBk;
-import weka.classifiers.trees.RandomForest;
+import weka.classifiers.Classifier;
+import weka.classifiers.Evaluation;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ConfiguredClassifier {
 
-    IBk ibk;
-    RandomForest randomForest;
-    NaiveBayes naiveBayes;
-    boolean balancingMethod;
-    boolean featureSelection;
-    boolean costSensitive;
-
+    private List<Classifier> baseClassifierList = new ArrayList<>();
+    private List<Classifier> readyClassifierList = new ArrayList<>();
+    private boolean balancingMethod;
+    private boolean featureSelection;
+    private boolean costSensitive;
+    private Evaluation randomForestEvaluation;
+    private Evaluation naiveBayesEvaluation;
+    private Evaluation ibkEvaluation;
 
     public boolean isBalancingMethod() {
         return balancingMethod;
@@ -38,31 +41,51 @@ public class ConfiguredClassifier {
         this.costSensitive = costSensitive;
     }
 
-    public IBk getIbk() {
-        return ibk;
+    public List<Classifier> getBaseClassifierList() {
+        return baseClassifierList;
     }
 
-    public void setIbk(IBk ibk) {
-        this.ibk = ibk;
+    public void setBaseClassifierList(List<Classifier> baseClassifierList) {
+        this.baseClassifierList = baseClassifierList;
     }
 
-    public RandomForest getRandomForest() {
-        return randomForest;
+    public void addClassifier(Classifier classifier) {
+        this.baseClassifierList.add(classifier);
     }
 
-    public void setRandomForest(RandomForest randomForest) {
-        this.randomForest = randomForest;
+    public Evaluation getRandomForestEvaluation() {
+        return randomForestEvaluation;
     }
 
-    public NaiveBayes getNaiveBayes() {
-        return naiveBayes;
+    public void setRandomForestEvaluation(Evaluation randomForestEvaluation) {
+        this.randomForestEvaluation = randomForestEvaluation;
     }
 
-    public void setNaiveBayes(NaiveBayes naiveBayes) {
-        this.naiveBayes = naiveBayes;
+    public Evaluation getNaiveBayesEvaluation() {
+        return naiveBayesEvaluation;
     }
 
-    public void prepareClassifier() {
+    public void setNaiveBayesEvaluation(Evaluation naiveBayesEvaluation) {
+        this.naiveBayesEvaluation = naiveBayesEvaluation;
+    }
 
+    public Evaluation getIbkEvaluation() {
+        return ibkEvaluation;
+    }
+
+    public void setIbkEvaluation(Evaluation ibkEvaluation) {
+        this.ibkEvaluation = ibkEvaluation;
+    }
+
+    public List<Classifier> getReadyClassifierList() {
+        return readyClassifierList;
+    }
+
+    public void setReadyClassifierList(List<Classifier> readyClassifierList) {
+        this.readyClassifierList = readyClassifierList;
+    }
+
+    public void addReadyClassifier(Classifier classifier) {
+        this.readyClassifierList.add(classifier);
     }
 }

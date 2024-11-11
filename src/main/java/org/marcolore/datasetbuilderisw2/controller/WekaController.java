@@ -6,9 +6,12 @@ import org.marcolore.datasetbuilderisw2.model.EvaluationModels;
 import org.marcolore.datasetbuilderisw2.utility.WekaUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import weka.classifiers.evaluation.Evaluation;
+import weka.classifiers.Evaluation;
+import weka.classifiers.meta.FilteredClassifier;
+import weka.classifiers.trees.RandomForest;
 import weka.core.Instances;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class WekaController {
@@ -56,10 +59,9 @@ public class WekaController {
         for (ConfiguredClassifier classifier : configuredClassifiers){
                 Instances trainingSet = evaluationModels.getTrainingSet();
                 Instances testingSet = evaluationModels.getTestingSet();
+
                 Evaluation evaluation = new Evaluation(trainingSet);
-                //Now we prepare the classifier based on the configuration, every classifier class has 3 different classifiers: iBk, RandomForest, NaiveBayes
-                classifier.prepareClassifier();
-                //evaluation.evaluateModel(classifier.getClassifier(), testingSet);
+
             }
 
     }

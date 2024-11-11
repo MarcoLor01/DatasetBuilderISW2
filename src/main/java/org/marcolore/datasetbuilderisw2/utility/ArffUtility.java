@@ -82,7 +82,7 @@ public class ArffUtility {
     private static void writeArffData(BufferedWriter fileWriter, List<JavaClass> classes) throws IOException {
         for (JavaClass javaClass : classes) {
             String buggy = javaClass.isBuggy() ? "YES" : "NO";
-            String line = String.format(Locale.US, "%d,%d,%d,%d,%d,%.2f,%d,%d,%d,%d,%.2f,%.2f,%s",
+            String line = String.format(Locale.US, "%d,%d,%d,%d,%d,%.2f,%d,%d,%d,%d,%d,%.2f,%.2f,%s",
                     javaClass.getLoc(),
                     javaClass.getAuthorsNumber(),
                     javaClass.getRevisionsNumber(),
@@ -91,6 +91,7 @@ public class ArffUtility {
                     javaClass.getAverageAddedLines(),
                     javaClass.getMaxAddedLines(),
                     javaClass.getTotalChurn(),
+                    javaClass.getMaxChurn(),
                     javaClass.getNumberFix(),
                     javaClass.getCyclomaticComplexity(),
                     javaClass.getAverageChurn(),
