@@ -2,7 +2,7 @@ package org.marcolore.datasetbuilderisw2.controller;
 
 import org.marcolore.datasetbuilderisw2.Main;
 import org.marcolore.datasetbuilderisw2.model.ConfiguredClassifier;
-import org.marcolore.datasetbuilderisw2.model.EvaluationModels;
+import org.marcolore.datasetbuilderisw2.model.ModelEvaluation;
 import org.marcolore.datasetbuilderisw2.utility.ClassifierUtility;
 import org.marcolore.datasetbuilderisw2.utility.WekaUtility;
 import org.slf4j.Logger;
@@ -29,8 +29,8 @@ public class WekaController {
     private String project;
     private int iteration;
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
+    private List<ModelEvaluation> modelEvaluationList = new ArrayList<>();
 
-    private final List<ConfiguredClassifier> configuredClassifiers = new ArrayList<>();
 
     public WekaController(String project, int iteration) {
         this.project = project;
@@ -39,8 +39,7 @@ public class WekaController {
 
     public void Classify() throws Exception {
 
-        for(int i = 1; i < iteration ; i++) {
-
+        for(int i = 1; i <= iteration ; i++) {
             Instances trainingSet = WekaUtility.convertData(project, i, "Training");
             Instances testingSet = WekaUtility.convertData(project, i, "Testing");
 
@@ -56,28 +55,28 @@ public class WekaController {
                 logger.error("Testing set null");
             }
 
-            setConfiguredClassifiers(trainingSet);
-            evaluate(trainingSet, testingSet);
+            List<ConfiguredClassifier> configuredClassifiers = setConfiguredClassifiers(trainingSet);
+            evaluate(trainingSet, testingSet, configuredClassifiers);
 
         }
     }
 
-    public void evaluate(Instances trainingSet, Instances testingSet) throws Exception {
-
+    public void evaluate(Instances trainingSet, Instances testingSet, List<ConfiguredClassifier> configuredClassifiers) throws Exception {
 
         for (ConfiguredClassifier classifier : configuredClassifiers){
-            List<Evaluation> evaluations = new ArrayList<>();
             for(Classifier readyClassifier : classifier.getReadyClassifierList()){
                 readyClassifier.buildClassifier(trainingSet);
                 Evaluation evaluation = new Evaluation(trainingSet);
                 evaluation.evaluateModel(readyClassifier, testingSet);
-                double trainingPercent = 100.0 * trainingSet.numInstances() / (trainingSet.numInstances() + testingSet.numInstances());
+                double percentOfTraining = 100.0 * trainingSet.numInstances() / (trainingSet.numInstances() + testingSet.numInstances());
 
+                ModelEvaluation modelEvaluation = new ModelEvaluation(project, iteration, readyClassifier, evaluation,
+                        classifier.isFeatureSelection() ? "Yes" : "No", classifier.isBalancingMethod() ? "Yes" : "No",
+                        classifier.isCostSensitive() ? "Yes" : "No", percentOfTraining);
 
+                modelEvaluationList.add(modelEvaluation);
             }
-
             }
-
     }
 
     private ConfiguredClassifier createConfiguredClassifier(IBk ibk, RandomForest randomForest, NaiveBayes naiveBayes,
@@ -94,11 +93,12 @@ public class WekaController {
         return configuredClassifier;
     }
 
-    public void setConfiguredClassifiers(Instances trainingSet) {
+    public List<ConfiguredClassifier> setConfiguredClassifiers(Instances trainingSet) {
+
         boolean[] costSensitiveOptions = {false, true};
         boolean[] featureSelectionOptions = {false, true};
         boolean[] balanceMethodOptions = {false, true};
-
+        List<ConfiguredClassifier> configuredClassifierList = new ArrayList<>();
         for (boolean balancing : balanceMethodOptions) {
             for (boolean costSensitive : costSensitiveOptions) {
                 for (boolean featureSelection : featureSelectionOptions) {
@@ -116,13 +116,15 @@ public class WekaController {
                             balancing, costSensitive, featureSelection
                     );
 
-                    prepareClassifier(configuredClassifier, trainingSet);
+                    prepareClassifier(configuredClassifier, trainingSet, configuredClassifierList);
                 }
             }
         }
+
+        return configuredClassifierList;
     }
 
-    void prepareClassifier(ConfiguredClassifier configuredClassifier, Instances trainingSet) {
+    void prepareClassifier(ConfiguredClassifier configuredClassifier, Instances trainingSet, List<ConfiguredClassifier> configuredClassifierList) {
 
         int numberOfAttributes = trainingSet.numAttributes();
         AttributeStats attributeStats = trainingSet.attributeStats(numberOfAttributes-1);
@@ -140,23 +142,20 @@ public class WekaController {
                 CostSensitiveClassifier costSensitiveClassifier = createModelCostSensitive();
                 costSensitiveClassifier.setClassifier(currentClassifier);
                 currentClassifier = costSensitiveClassifier;
-                System.out.print("Sono in costSensitive\n");
             }
 
             if(configuredClassifier.isFeatureSelection()) {
                 currentClassifier = createModelFeatureSelection(currentClassifier);
-                System.out.print("Sono in featureSelection\n");
             }
 
             if(configuredClassifier.isBalancingMethod()) {
                 currentClassifier = createModelSMOTE(currentClassifier, sizeMajorClass, sizeMinorClass);
-                System.out.print("Sono in balancingMethod\n");
             }
 
             configuredClassifier.addReadyClassifier(currentClassifier);
         }
 
-        this.configuredClassifiers.add(configuredClassifier);
+        configuredClassifierList.add(configuredClassifier);
 
     }
 

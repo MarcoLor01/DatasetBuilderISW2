@@ -81,6 +81,7 @@ public class Main {
 
         //Creation of datasets
         int iterationNumber = createDatasets(classWithMetrics, releaseList, tickets, gitController, metricsCalculator, projectName);
+        System.out.printf("Number of iterations %d\n", iterationNumber);
         //Now we want to use this Data with Weka
         WekaController wekaController = new WekaController(projectName, iterationNumber - 1);
         wekaController.Classify();
