@@ -46,7 +46,7 @@ public class WekaUtility {
         } catch (IOException e) {
             throw new RuntimeException("Failed to load configuration file.", e);
         }
-        if(Objects.equals(properties.getProperty("base.path"), "2")) {
+        if(Objects.equals(properties.getProperty("path"), "2")) {
             arffFilePath = String.format("C:\\Users\\HP\\DatasetBuilderISW2\\src\\main\\dataset\\arffDataset\\%sDataset\\%s\\%s_%d_%s.arff"
                     ,
                     project.toLowerCase(), type, type, iteration, project.toLowerCase());

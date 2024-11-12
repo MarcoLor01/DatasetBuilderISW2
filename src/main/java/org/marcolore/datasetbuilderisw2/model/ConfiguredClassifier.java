@@ -10,6 +10,7 @@ public class ConfiguredClassifier {
 
     private List<Classifier> baseClassifierList = new ArrayList<>();
     private List<Classifier> readyClassifierList = new ArrayList<>();
+    private List<Evaluation> classifierEvaluationList = new ArrayList<>();
     private boolean balancingMethod;
     private boolean featureSelection;
     private boolean costSensitive;
@@ -87,5 +88,17 @@ public class ConfiguredClassifier {
 
     public void addReadyClassifier(Classifier classifier) {
         this.readyClassifierList.add(classifier);
+    }
+
+    public List<Evaluation> getClassifierEvaluationList() {
+        return classifierEvaluationList;
+    }
+
+    public void setClassifierEvaluationList(List<Evaluation> classifierEvaluationList) {
+        this.classifierEvaluationList = classifierEvaluationList;
+    }
+
+    public void addClassifierEvaluation(Evaluation evaluation) {
+        this.classifierEvaluationList.add(evaluation);
     }
 }
