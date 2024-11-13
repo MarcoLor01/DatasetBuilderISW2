@@ -126,7 +126,7 @@ public class MetricsCalculatorController {
         };
 
         for(JavaClass javaClass : javaClassList) {
-            String javaClassCode = removeComments(javaClass.getFileContent());
+            String javaClassCode = javaClass.getFileContent();
             int complexity = 1;
 
             for(String pattern : controlStructures){

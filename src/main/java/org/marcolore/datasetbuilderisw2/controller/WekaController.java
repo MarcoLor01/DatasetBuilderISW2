@@ -1,6 +1,5 @@
 package org.marcolore.datasetbuilderisw2.controller;
 
-import ch.qos.logback.core.model.Model;
 import org.marcolore.datasetbuilderisw2.Main;
 import org.marcolore.datasetbuilderisw2.model.AcumeClass;
 import org.marcolore.datasetbuilderisw2.model.ConfiguredClassifier;
@@ -117,10 +116,10 @@ public class WekaController {
             var testInstance = testInstances.instance(i);
 
             String actualClassLabel = testInstance.toString(testInstances.classIndex());
-
             double[] probabilityDistribution = model.distributionForInstance(testInstance);
 
             double predictedClassProbability = probabilityDistribution[0];
+
 
             AcumeClass acumeEntry = new AcumeClass(
                     instanceId,

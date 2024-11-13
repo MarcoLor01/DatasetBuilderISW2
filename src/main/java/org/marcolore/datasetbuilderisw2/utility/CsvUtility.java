@@ -91,13 +91,11 @@ public class CsvUtility {
         String projectFolderName = project + "Dataset";
         String projectFolderPath = basePath + "/" + projectFolderName;
 
-        // Creazione della directory, se non esiste
         File projectFolder = new File(projectFolderPath);
         if (!projectFolder.exists()) {
-            projectFolder.mkdirs(); // Crea tutte le directory necessarie
+            projectFolder.mkdirs();
         }
 
-        // Determina la parte del nome del file dai booleani
         StringBuilder booleanPart = new StringBuilder();
         if (isFeatureSelection) {
             booleanPart.append("BestFirst_");
@@ -109,32 +107,29 @@ public class CsvUtility {
             booleanPart.append("SMOTE_");
         }
 
-        // Rimuove l'ultimo underscore, se presente
-        if (booleanPart.length() > 0) {
+        if (!booleanPart.isEmpty()) {
             booleanPart.setLength(booleanPart.length() - 1);
         }
 
-        // Nome del file CSV
         String fileName = project + "_" + classifierName + "_" + booleanPart + "_" + iteration + ".csv";
         String filePath = projectFolderPath + "/" + fileName;
 
-        // Scrittura del file CSV
         try (FileWriter csvWriter = new FileWriter(filePath)) {
-            // Intestazione del CSV
-            csvWriter.append("InstanceId,PredictedClassProbability,ActualClassLabel,Size\n");
 
-            // Aggiunta delle righe del file
+            csvWriter.append("InstanceId,Size,PredictedClassProbability,ActualClassLabel\n");
+
             for (AcumeClass acumeClass : acumeClasses) {
                 csvWriter.append(String.valueOf(acumeClass.getInstanceId())).append(",").
-                        append(String.valueOf(acumeClass.getPredictedClassProbability())).append(",").
-                        append(acumeClass.getActualClassLabel()).append(",").append(String.valueOf(acumeClass.getSize())).
+                        append(String.valueOf(acumeClass.getSize())).append(",").
+                        append(String.valueOf(acumeClass.getPredictedClassProbability())).append(",")
+                        .append(String.valueOf(acumeClass.getSize())).
                         append("\n");
             }
 
-            System.out.println("File CSV creato con successo: " + filePath);
+            logger.info("Creation of CSV file : {}", filePath);
 
         } catch (IOException e) {
-            System.err.println("Errore durante la scrittura del file CSV: " + e.getMessage());
+            logger.error("Error in the writing of the file: {}", e.getMessage());
         }
     }
 }

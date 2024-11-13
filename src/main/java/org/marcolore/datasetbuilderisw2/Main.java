@@ -82,9 +82,10 @@ public class Main {
 
         //Creation of datasets
         int iterationNumber = createDatasets(classWithMetrics, releaseList, tickets, gitController, metricsCalculator, projectName);
-        System.out.printf("Number of iterations %d\n", iterationNumber);
+
         //Now we want to use this Data with Weka
         WekaController wekaController = new WekaController(projectName, iterationNumber - 1, classWithMetrics);
+
         List<ModelEvaluation> modelEvaluationList = wekaController.Classify();
         }
 
@@ -101,28 +102,29 @@ public class Main {
         from release 3 to the last release who is the number tot_release / 2 */
 
         int firstRelease = 3;
+
         int numberOfTraining = 1;
 
         for(int i=firstRelease;i<=(releaseList.size());i++){
 
             //Now we use the first release as the test set
             List<JavaClass> trainingClassList = new ArrayList<>(javaClassList);
-
             ReleaseUtility.checkReleaseId(trainingClassList, i);
+
             List<Ticket> trainingTickets = TicketUtility.checkFixedVersion(tickets, i);
+
             List<JavaClass> testingClassList = ReleaseUtility.getJavaClassesFromRelease(javaClassList, i);
 
             ClassUtility.setBuggyOrNot(trainingTickets, trainingClassList, gitController, releaseList);
-            ClassUtility.setBuggyOrNot(trainingTickets, testingClassList, gitController, releaseList);
-
-            //Last metric
             metricsCalculatorController.calculateNumberFix(trainingClassList);
+
+            ClassUtility.setBuggyOrNot(tickets, testingClassList, gitController, releaseList);
             metricsCalculatorController.calculateNumberFix(testingClassList);
 
-            writeDatasets(projectName, numberOfTraining, trainingClassList, testingClassList);
+            writeDatasets(projectName, numberOfTraining, trainingClassList, testingClassList); //TODO: Check this
 
             numberOfTraining++;
-            System.out.printf("Number of training %d\n ", numberOfTraining);
+
         }
         return numberOfTraining;
     }

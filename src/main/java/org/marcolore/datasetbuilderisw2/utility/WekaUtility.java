@@ -30,10 +30,6 @@ public class WekaUtility {
                 data.setClassIndex(data.numAttributes() - 1);
             }
 
-            System.out.println("Numero di istanze: " + data.numInstances());
-            System.out.println("Attributi: " + data.numAttributes());
-            System.out.println(data); // Stampa il contenuto del dataset
-
             return data;
         } catch(IOException e) {
             logger.error("Error in conversion of data from Arff to Instances", e);

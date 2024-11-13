@@ -16,6 +16,11 @@ public class ClassUtility {
     }
 
     public static void setBuggyOrNot(List<Ticket> ticketList, List<JavaClass> allProjectClasses, GitController gitController, List<Release> releaseList) throws IOException {
+
+        for(JavaClass projectClass : allProjectClasses){
+            projectClass.setBuggy(false);
+        }
+
         for (Ticket ticket : ticketList) {
             List<RevCommit> ticketCommitList = ticket.getCommitList();
             Release injectedVersion = ticket.getInjectedVersion();
@@ -26,7 +31,6 @@ public class ClassUtility {
                 Release releaseOfCommit = ReleaseUtility.releaseFromId(releaseList, releaseOfCommitId);
                 List<String> modifiedClassesNames = gitController.findTouchedClassFromCommit(commit);
 
-                // Etichetta le classi come buggy se necessario
                 for (String modifiedClass : modifiedClassesNames) {
                     labelBuggyClasses(modifiedClass, injectedVersion, releaseOfCommit, allProjectClasses, commit);
                 }

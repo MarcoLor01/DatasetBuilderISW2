@@ -9,7 +9,7 @@ className,loc,authorsNumber,revisionsNumber,touchedLoc,totalAddedLines,averageAd
 "lang/java/src/java/org/apache/avro/file/DataFileConstants.java",14,0,0,0,0,0.0,0,0,0,0,1,0.0,0.0,false
 "lang/java/src/java/org/apache/avro/file/DataFileReader.java",116,0,0,0,0,0.0,0,0,0,0,27,0.0,0.0,false
 "lang/java/src/java/org/apache/avro/file/DataFileStream.java",189,1,1,3,2,2.0,2,1,1,0,49,1.0,0.0,false
-"lang/java/src/java/org/apache/avro/file/DataFileWriter.java",254,0,0,0,0,0.0,0,0,0,0,43,0.0,0.0,false
+"lang/java/src/java/org/apache/avro/file/DataFileWriter.java",254,0,0,0,0,0.0,0,0,0,0,43,0.0,0.0,true
 "lang/java/src/java/org/apache/avro/file/DeflateCodec.java",100,0,0,0,0,0.0,0,0,0,0,12,0.0,0.0,false
 "lang/java/src/java/org/apache/avro/file/LengthLimitedInputStream.java",53,0,0,0,0,0.0,0,0,0,0,11,0.0,0.0,false
 "lang/java/src/java/org/apache/avro/file/NullCodec.java",35,0,0,0,0,0.0,0,0,0,0,4,0.0,0.0,false
@@ -44,7 +44,7 @@ className,loc,authorsNumber,revisionsNumber,touchedLoc,totalAddedLines,averageAd
 "lang/java/src/java/org/apache/avro/io/ValidatingEncoder.java",149,0,0,0,0,0.0,0,0,0,0,29,0.0,0.0,false
 "lang/java/src/java/org/apache/avro/io/parsing/JsonGrammarGenerator.java",58,0,0,0,0,0.0,0,0,0,0,20,0.0,0.0,false
 "lang/java/src/java/org/apache/avro/io/parsing/Parser.java",98,0,0,0,0,0.0,0,0,0,0,25,0.0,0.0,false
-"lang/java/src/java/org/apache/avro/io/parsing/ResolvingGrammarGenerator.java",335,0,0,0,0,0.0,0,0,0,0,106,0.0,0.0,false
+"lang/java/src/java/org/apache/avro/io/parsing/ResolvingGrammarGenerator.java",335,0,0,0,0,0.0,0,0,0,0,106,0.0,0.0,true
 "lang/java/src/java/org/apache/avro/io/parsing/SkipParser.java",44,0,0,0,0,0.0,0,0,0,0,11,0.0,0.0,false
 "lang/java/src/java/org/apache/avro/io/parsing/Symbol.java",358,0,0,0,0,0.0,0,0,0,0,18,0.0,0.0,false
 "lang/java/src/java/org/apache/avro/io/parsing/ValidatingGrammarGenerator.java",82,0,0,0,0,0.0,0,0,0,0,22,0.0,0.0,false
@@ -72,7 +72,7 @@ className,loc,authorsNumber,revisionsNumber,touchedLoc,totalAddedLines,averageAd
 "lang/java/src/java/org/apache/avro/ipc/stats/Stopwatch.java",38,0,0,0,0,0.0,0,0,0,0,8,0.0,0.0,false
 "lang/java/src/java/org/apache/avro/reflect/InduceSchemaTool.java",49,0,0,0,0,0.0,0,0,0,0,8,0.0,0.0,false
 "lang/java/src/java/org/apache/avro/reflect/Nullable.java",10,1,1,33,33,33.0,33,33,33,0,1,33.0,0.0,false
-"lang/java/src/java/org/apache/avro/reflect/ReflectData.java",341,1,1,24,16,16.0,16,14,14,0,97,14.0,0.0,false
+"lang/java/src/java/org/apache/avro/reflect/ReflectData.java",341,1,1,24,16,16.0,16,14,14,0,97,14.0,0.0,true
 "lang/java/src/java/org/apache/avro/reflect/ReflectDatumReader.java",109,0,0,0,0,0.0,0,0,0,0,24,0.0,0.0,false
 "lang/java/src/java/org/apache/avro/reflect/ReflectDatumWriter.java",87,0,0,0,0,0.0,0,0,0,0,14,0.0,0.0,false
 "lang/java/src/java/org/apache/avro/reflect/ReflectRequestor.java",43,0,0,0,0,0.0,0,0,0,0,6,0.0,0.0,false
