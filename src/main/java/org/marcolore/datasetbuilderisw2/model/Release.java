@@ -23,7 +23,7 @@ public class Release {
         this.name = name;
     }
 
-    public Integer getIdRelease() {
+    public Integer getOldIdRelease() {
         return idRelease;
     }
 

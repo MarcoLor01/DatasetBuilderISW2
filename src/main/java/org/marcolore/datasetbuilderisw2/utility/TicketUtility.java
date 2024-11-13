@@ -20,7 +20,7 @@ public class TicketUtility {
         tickets.removeIf(ticket -> ticket.getOpeningVersion() == null || ticket.getFixedVersion() == null
                 || (ticket.getOpeningVersion().getReleaseDate().isAfter(ticket.getFixedVersion().getReleaseDate()))
                 || (ticket.getOpeningVersion().getReleaseDate().isEqual(releases.get(0).getReleaseDate()))
-                || (ticket.getOpeningVersion().getIdRelease().equals(releases.get(0).getIdRelease())));
+                || (ticket.getOpeningVersion().getOldIdRelease().equals(releases.get(0).getOldIdRelease())));
 
     }
 
@@ -30,7 +30,7 @@ public class TicketUtility {
         if ((openingVersion == null || fixedVersion == null)
                 || (openingVersion.getReleaseDate().isAfter(fixedVersion.getReleaseDate()))
                 || (openingVersion.getReleaseDate().isEqual(releases.get(0).getReleaseDate()))
-                || (openingVersion.getIdRelease().equals(releases.get(0).getIdRelease()))) {
+                || (openingVersion.getOldIdRelease().equals(releases.get(0).getOldIdRelease()))) {
             return null;
         }
 

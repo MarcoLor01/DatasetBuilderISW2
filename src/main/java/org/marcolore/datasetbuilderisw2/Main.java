@@ -4,6 +4,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.marcolore.datasetbuilderisw2.controller.*;
 import org.marcolore.datasetbuilderisw2.model.JavaClass;
+import org.marcolore.datasetbuilderisw2.model.ModelEvaluation;
 import org.marcolore.datasetbuilderisw2.model.Release;
 import org.marcolore.datasetbuilderisw2.model.Ticket;
 import org.marcolore.datasetbuilderisw2.utility.*;
@@ -83,8 +84,8 @@ public class Main {
         int iterationNumber = createDatasets(classWithMetrics, releaseList, tickets, gitController, metricsCalculator, projectName);
         System.out.printf("Number of iterations %d\n", iterationNumber);
         //Now we want to use this Data with Weka
-        WekaController wekaController = new WekaController(projectName, iterationNumber - 1);
-        wekaController.Classify();
+        WekaController wekaController = new WekaController(projectName, iterationNumber - 1, classWithMetrics);
+        List<ModelEvaluation> modelEvaluationList = wekaController.Classify();
         }
 
 
@@ -103,6 +104,7 @@ public class Main {
         int numberOfTraining = 1;
 
         for(int i=firstRelease;i<=(releaseList.size());i++){
+
             //Now we use the first release as the test set
             List<JavaClass> trainingClassList = new ArrayList<>(javaClassList);
 

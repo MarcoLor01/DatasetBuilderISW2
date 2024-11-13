@@ -1,9 +1,13 @@
 package org.marcolore.datasetbuilderisw2.controller;
 
+import ch.qos.logback.core.model.Model;
 import org.marcolore.datasetbuilderisw2.Main;
+import org.marcolore.datasetbuilderisw2.model.AcumeClass;
 import org.marcolore.datasetbuilderisw2.model.ConfiguredClassifier;
+import org.marcolore.datasetbuilderisw2.model.JavaClass;
 import org.marcolore.datasetbuilderisw2.model.ModelEvaluation;
 import org.marcolore.datasetbuilderisw2.utility.ClassifierUtility;
+import org.marcolore.datasetbuilderisw2.utility.CsvUtility;
 import org.marcolore.datasetbuilderisw2.utility.WekaUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,18 +30,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WekaController {
-    private String project;
-    private int iteration;
+    private final String project;
+    private final int iteration;
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
-    private List<ModelEvaluation> modelEvaluationList = new ArrayList<>();
+
+    private final List<JavaClass> allClasses;
+    private List<AcumeClass> acumeClasses = new ArrayList<>();
 
 
-    public WekaController(String project, int iteration) {
+    public WekaController(String project, int iteration, List<JavaClass> allClasses) {
         this.project = project;
         this.iteration = iteration;
+        this.allClasses = allClasses;
     }
 
-    public void Classify() throws Exception {
+    public List<ModelEvaluation> Classify() throws Exception {
+        List<ModelEvaluation> modelEvaluationList = new ArrayList<>();
 
         for(int i = 1; i <= iteration ; i++) {
             Instances trainingSet = WekaUtility.convertData(project, i, "Training");
@@ -56,14 +64,21 @@ public class WekaController {
             }
 
             List<ConfiguredClassifier> configuredClassifiers = setConfiguredClassifiers(trainingSet);
-            evaluate(trainingSet, testingSet, configuredClassifiers);
+            evaluate(trainingSet, testingSet, configuredClassifiers, modelEvaluationList, i);
 
         }
+
+        return modelEvaluationList;
     }
 
-    public void evaluate(Instances trainingSet, Instances testingSet, List<ConfiguredClassifier> configuredClassifiers) throws Exception {
+    public void evaluate(Instances trainingSet, Instances testingSet, List<ConfiguredClassifier> configuredClassifiers, List<ModelEvaluation> modelEvaluationList, int iteration) throws Exception {
 
         for (ConfiguredClassifier classifier : configuredClassifiers){
+
+            boolean isFeatureSelection = classifier.isFeatureSelection();
+            boolean isBalancingMethod = classifier.isBalancingMethod();
+            boolean isCostSensitive = classifier.isCostSensitive();
+
             for(Classifier readyClassifier : classifier.getReadyClassifierList()){
                 readyClassifier.buildClassifier(trainingSet);
                 Evaluation evaluation = new Evaluation(trainingSet);
@@ -71,12 +86,55 @@ public class WekaController {
                 double percentOfTraining = 100.0 * trainingSet.numInstances() / (trainingSet.numInstances() + testingSet.numInstances());
 
                 ModelEvaluation modelEvaluation = new ModelEvaluation(project, iteration, readyClassifier, evaluation,
-                        classifier.isFeatureSelection() ? "Yes" : "No", classifier.isBalancingMethod() ? "Yes" : "No",
-                        classifier.isCostSensitive() ? "Yes" : "No", percentOfTraining);
+                        isFeatureSelection ? "Yes" : "No", isBalancingMethod ? "Yes" : "No",
+                        isCostSensitive ? "Yes" : "No", percentOfTraining);
 
                 modelEvaluationList.add(modelEvaluation);
+                makePrediction(readyClassifier, testingSet, iteration, isFeatureSelection, isCostSensitive, isBalancingMethod);
             }
             }
+    }
+
+    private void makePrediction(Classifier model, Instances testInstances, int numberIteration, boolean isFeatureSelection, boolean isCostSensitive, boolean isBalancingMethod) throws Exception {
+
+        int numTestingInstances = testInstances.numInstances();
+        int instanceId = 0;
+
+        acumeClasses.clear();
+
+        List<JavaClass> releaseClasses = allClasses.stream()
+                .filter(javaClass -> javaClass.getRelease().getId() == numberIteration + 2)
+                .toList();
+
+        if (releaseClasses.size() != numTestingInstances) {
+            throw new IllegalStateException("Mismatch between test instances and release classes.");
+        }
+
+        for (int i = 0; i < numTestingInstances; i++) {
+
+            JavaClass releaseClass = releaseClasses.get(i);
+
+            var testInstance = testInstances.instance(i);
+
+            String actualClassLabel = testInstance.toString(testInstances.classIndex());
+
+            double[] probabilityDistribution = model.distributionForInstance(testInstance);
+
+            double predictedClassProbability = probabilityDistribution[0];
+
+            AcumeClass acumeEntry = new AcumeClass(
+                    instanceId,
+                    releaseClass.getLoc(),
+                    predictedClassProbability,
+                    actualClassLabel
+            );
+
+            acumeClasses.add(acumeEntry);
+
+            instanceId++;
+        }
+        String classifierName = WekaUtility.getClassifierName(model);
+        CsvUtility.createAcumeFiles(project, acumeClasses, isBalancingMethod, isFeatureSelection, isCostSensitive, numberIteration, classifierName);
     }
 
     private ConfiguredClassifier createConfiguredClassifier(IBk ibk, RandomForest randomForest, NaiveBayes naiveBayes,
@@ -188,8 +246,8 @@ public class WekaController {
         CostSensitiveClassifier costSensitiveClassifier = new CostSensitiveClassifier();
         CostMatrix costMatrix = new CostMatrix(2);
         costMatrix.setCell(0,0,0.0);
-        costMatrix.setCell(1,0,1.0);
-        costMatrix.setCell(0,1,10.0);
+        costMatrix.setCell(1,0,1.0);  //Last value -> weight of false positive
+        costMatrix.setCell(0,1,10.0); //Last value -> weight of false negative
         costMatrix.setCell(1,1,0.0);
         costSensitiveClassifier.setMinimizeExpectedCost(false);
 

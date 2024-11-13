@@ -1,5 +1,6 @@
 package org.marcolore.datasetbuilderisw2.utility;
 
+import org.marcolore.datasetbuilderisw2.model.AcumeClass;
 import org.marcolore.datasetbuilderisw2.model.JavaClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,6 +82,60 @@ public class CsvUtility {
             return "\"" + value + "\"";
         }
         return value;
+    }
+
+    public static void createAcumeFiles(String project, List<AcumeClass> acumeClasses, boolean isBalancingMethod, boolean isFeatureSelection, boolean isCostSensitive, int iteration, String classifierName) {
+
+        String basePath = "src/main/dataset/acumeDataset";
+
+        String projectFolderName = project + "Dataset";
+        String projectFolderPath = basePath + "/" + projectFolderName;
+
+        // Creazione della directory, se non esiste
+        File projectFolder = new File(projectFolderPath);
+        if (!projectFolder.exists()) {
+            projectFolder.mkdirs(); // Crea tutte le directory necessarie
+        }
+
+        // Determina la parte del nome del file dai booleani
+        StringBuilder booleanPart = new StringBuilder();
+        if (isFeatureSelection) {
+            booleanPart.append("BestFirst_");
+        }
+        if (isCostSensitive) {
+            booleanPart.append("SensitiveLearning_");
+        }
+        if (isBalancingMethod) {
+            booleanPart.append("SMOTE_");
+        }
+
+        // Rimuove l'ultimo underscore, se presente
+        if (booleanPart.length() > 0) {
+            booleanPart.setLength(booleanPart.length() - 1);
+        }
+
+        // Nome del file CSV
+        String fileName = project + "_" + classifierName + "_" + booleanPart + "_" + iteration + ".csv";
+        String filePath = projectFolderPath + "/" + fileName;
+
+        // Scrittura del file CSV
+        try (FileWriter csvWriter = new FileWriter(filePath)) {
+            // Intestazione del CSV
+            csvWriter.append("InstanceId,PredictedClassProbability,ActualClassLabel,Size\n");
+
+            // Aggiunta delle righe del file
+            for (AcumeClass acumeClass : acumeClasses) {
+                csvWriter.append(String.valueOf(acumeClass.getInstanceId())).append(",").
+                        append(String.valueOf(acumeClass.getPredictedClassProbability())).append(",").
+                        append(acumeClass.getActualClassLabel()).append(",").append(String.valueOf(acumeClass.getSize())).
+                        append("\n");
+            }
+
+            System.out.println("File CSV creato con successo: " + filePath);
+
+        } catch (IOException e) {
+            System.err.println("Errore durante la scrittura del file CSV: " + e.getMessage());
+        }
     }
 }
 

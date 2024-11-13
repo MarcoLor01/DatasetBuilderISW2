@@ -2,6 +2,9 @@ package org.marcolore.datasetbuilderisw2.utility;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import weka.classifiers.Classifier;
+import weka.classifiers.meta.CostSensitiveClassifier;
+import weka.classifiers.meta.FilteredClassifier;
 import weka.core.Instances;
 import weka.core.converters.ArffLoader;
 
@@ -65,5 +68,27 @@ public class WekaUtility {
 
         return loader.getDataSet();
     }
+
+    public static String getClassifierName(Classifier classifier) {
+        // Controlla se è un FilteredClassifier
+        if (classifier instanceof FilteredClassifier filtered) {
+            if (filtered.getClassifier() != null) {
+                return getClassifierName(filtered.getClassifier());
+            }
+            logger.error("Null Classifier");
+        }
+        // Controlla se è un CostSensitiveClassifier
+        if (classifier instanceof CostSensitiveClassifier costSensitive) {
+            if (costSensitive.getClassifier() != null) {
+                return getClassifierName(costSensitive.getClassifier());
+            }
+            logger.error("Null Classifier");
+        }
+        // Gestisce eventuali altri tipi di wrapper aggiuntivi se necessario
+
+        // Nome della classe del classificatore se non è un wrapper
+        return classifier.getClass().getSimpleName();
+    }
+
 
 }

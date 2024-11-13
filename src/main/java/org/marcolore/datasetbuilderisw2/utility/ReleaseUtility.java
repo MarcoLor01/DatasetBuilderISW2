@@ -3,7 +3,6 @@ package org.marcolore.datasetbuilderisw2.utility;
 import org.json.JSONArray;
 import org.marcolore.datasetbuilderisw2.model.JavaClass;
 import org.marcolore.datasetbuilderisw2.model.Release;
-import org.marcolore.datasetbuilderisw2.model.Ticket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +36,7 @@ public class ReleaseUtility {
             int versionId = affectedVersion.getJSONObject(i).getInt("id");
 
             for (Release release : releases) {
-                if (Objects.equals(release.getIdRelease(), versionId)) {
+                if (Objects.equals(release.getOldIdRelease(), versionId)) {
                     affectedRelease.add(release);
                     break;
                 }
