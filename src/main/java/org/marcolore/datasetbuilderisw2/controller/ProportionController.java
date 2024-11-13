@@ -1,6 +1,5 @@
 package org.marcolore.datasetbuilderisw2.controller;
 
-import org.marcolore.datasetbuilderisw2.Main;
 import org.marcolore.datasetbuilderisw2.enums.ProjectsNames;
 import org.marcolore.datasetbuilderisw2.model.Release;
 import org.marcolore.datasetbuilderisw2.model.Ticket;

@@ -1,10 +1,8 @@
 package org.marcolore.datasetbuilderisw2;
 
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.marcolore.datasetbuilderisw2.controller.*;
 import org.marcolore.datasetbuilderisw2.model.JavaClass;
-import org.marcolore.datasetbuilderisw2.model.ModelEvaluation;
 import org.marcolore.datasetbuilderisw2.model.Release;
 import org.marcolore.datasetbuilderisw2.model.Ticket;
 import org.marcolore.datasetbuilderisw2.utility.*;
@@ -25,14 +23,14 @@ public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
     private static String initialPath;
 
-    public static void main(String[] args) throws GitAPIException, IOException, Exception {
+    public static void main(String[] args) throws Exception {
         logger.info("Start Bookkeeper extraction");
         extractData("BOOKKEEPER");
         logger.info("Start Avro extraction");
         extractData("AVRO");
     }
 
-    public static void extractData(String projectName) throws IOException, GitAPIException, Exception {
+    public static void extractData(String projectName) throws Exception {
 
         takeCorrectPath();
 
@@ -86,7 +84,7 @@ public class Main {
         //Now we want to use this Data with Weka
         WekaController wekaController = new WekaController(projectName, iterationNumber - 1, classWithMetrics);
 
-        List<ModelEvaluation> modelEvaluationList = wekaController.Classify();
+        wekaController.classify();
         }
 
 
@@ -121,7 +119,7 @@ public class Main {
             ClassUtility.setBuggyOrNot(tickets, testingClassList, gitController, releaseList);
             metricsCalculatorController.calculateNumberFix(testingClassList);
 
-            writeDatasets(projectName, numberOfTraining, trainingClassList, testingClassList); //TODO: Check this
+            writeDatasets(projectName, numberOfTraining, trainingClassList, testingClassList);
 
             numberOfTraining++;
 

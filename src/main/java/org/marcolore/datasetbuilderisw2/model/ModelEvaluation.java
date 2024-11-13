@@ -3,11 +3,9 @@ package org.marcolore.datasetbuilderisw2.model;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 
-import java.util.HashMap;
-
 public class ModelEvaluation {
 
-    private String Project;
+    private String project;
     private int iteration;
     private Classifier classifier;
     private EvaluationMetrics evaluationMetrics;
@@ -18,15 +16,17 @@ public class ModelEvaluation {
 
     public ModelEvaluation(String project, int iteration,
                            Classifier classifier, Evaluation evaluation,
-                           String featureSelection, String balancingMethod, String costSensitive,
-                           double trainingPercent) {
-        Project = project;
+                           String featureSelection, String balancingMethod, String costSensitive) {
+        this.project = project;
         this.iteration = iteration;
         this.classifier = classifier;
         this.evaluationMetrics = new EvaluationMetrics(evaluation);
         this.featureSelection = featureSelection;
         this.balancingMethod = balancingMethod;
         this.costSensitive = costSensitive;
+    }
+
+    public void setTrainingPercent(double trainingPercent) {
         this.trainingPercent = trainingPercent;
     }
 }

@@ -1,6 +1,5 @@
 package org.marcolore.datasetbuilderisw2.controller;
 
-import org.marcolore.datasetbuilderisw2.Main;
 import org.marcolore.datasetbuilderisw2.model.AcumeClass;
 import org.marcolore.datasetbuilderisw2.model.ConfiguredClassifier;
 import org.marcolore.datasetbuilderisw2.model.JavaClass;
@@ -31,10 +30,10 @@ import java.util.List;
 public class WekaController {
     private final String project;
     private final int iteration;
-    private static final Logger logger = LoggerFactory.getLogger(Main.class);
+    private static final Logger logger = LoggerFactory.getLogger(WekaController.class);
 
     private final List<JavaClass> allClasses;
-    private List<AcumeClass> acumeClasses = new ArrayList<>();
+    List<AcumeClass> acumeClasses = new ArrayList<>();
 
 
     public WekaController(String project, int iteration, List<JavaClass> allClasses) {
@@ -43,7 +42,7 @@ public class WekaController {
         this.allClasses = allClasses;
     }
 
-    public List<ModelEvaluation> Classify() throws Exception {
+    public void classify() throws Exception {
         List<ModelEvaluation> modelEvaluationList = new ArrayList<>();
 
         for(int i = 1; i <= iteration ; i++) {
@@ -66,8 +65,6 @@ public class WekaController {
             evaluate(trainingSet, testingSet, configuredClassifiers, modelEvaluationList, i);
 
         }
-
-        return modelEvaluationList;
     }
 
     public void evaluate(Instances trainingSet, Instances testingSet, List<ConfiguredClassifier> configuredClassifiers, List<ModelEvaluation> modelEvaluationList, int iteration) throws Exception {
@@ -86,7 +83,8 @@ public class WekaController {
 
                 ModelEvaluation modelEvaluation = new ModelEvaluation(project, iteration, readyClassifier, evaluation,
                         isFeatureSelection ? "Yes" : "No", isBalancingMethod ? "Yes" : "No",
-                        isCostSensitive ? "Yes" : "No", percentOfTraining);
+                        isCostSensitive ? "Yes" : "No");
+                modelEvaluation.setTrainingPercent(percentOfTraining);
 
                 modelEvaluationList.add(modelEvaluation);
                 makePrediction(readyClassifier, testingSet, iteration, isFeatureSelection, isCostSensitive, isBalancingMethod);

@@ -9,6 +9,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
 
 public class CsvUtility {
@@ -89,7 +90,7 @@ public class CsvUtility {
         String basePath = "src/main/dataset/acumeDataset";
 
         String projectFolderName = project + "Dataset";
-        String projectFolderPath = basePath + "/" + projectFolderName;
+        String projectFolderPath = Paths.get(basePath, projectFolderName).toString();
 
         File projectFolder = new File(projectFolderPath);
         if (!projectFolder.exists()) {
@@ -112,7 +113,7 @@ public class CsvUtility {
         }
 
         String fileName = project + "_" + classifierName + "_" + booleanPart + "_" + iteration + ".csv";
-        String filePath = projectFolderPath + "/" + fileName;
+        String filePath = Paths.get(projectFolderPath, fileName).toString();
 
         try (FileWriter csvWriter = new FileWriter(filePath)) {
 

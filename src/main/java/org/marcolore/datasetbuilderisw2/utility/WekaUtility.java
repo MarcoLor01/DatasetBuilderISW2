@@ -11,6 +11,7 @@ import weka.core.converters.ArffLoader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -34,7 +35,7 @@ public class WekaUtility {
         } catch(IOException e) {
             logger.error("Error in conversion of data from Arff to Instances", e);
         }
-        return null;
+        return new Instances("EmptyInstances", new ArrayList<>(), 0);
     }
 
     private static Instances getInstances(String project, int iteration, String type) throws IOException {
@@ -42,8 +43,6 @@ public class WekaUtility {
         Properties properties = new Properties();
         try (FileInputStream fis = new FileInputStream("config.properties")) {
             properties.load(fis);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to load configuration file.", e);
         }
         if(Objects.equals(properties.getProperty("path"), "2")) {
             arffFilePath = String.format("C:\\Users\\HP\\DatasetBuilderISW2\\src\\main\\dataset\\arffDataset\\%sDataset\\%s\\%s_%d_%s.arff"
