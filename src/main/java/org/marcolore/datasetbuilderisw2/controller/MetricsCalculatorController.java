@@ -67,8 +67,9 @@ public class MetricsCalculatorController {
         int length = code.length();
         boolean inSingleLineComment = false;
         boolean inMultiLineComment = false;
-
-        for (int i = 0; i < length; i++) {
+        int i = 0;
+        
+        while (i < length) {
 
             if (inSingleLineComment) {
                 if (code.charAt(i) == '\n') {
@@ -92,6 +93,7 @@ public class MetricsCalculatorController {
                     result.append(code.charAt(i));
                 }
             }
+            i++;
         }
 
         return result.toString();
