@@ -16,9 +16,6 @@ public class MetricsCalculatorController {
     private final List<JavaClass> javaClassList;
     private final GitController gitController;
 
-    private int i =0;
-
-
     public MetricsCalculatorController(List<JavaClass> listOfClasses, GitController controller) {
         javaClassList = listOfClasses;
         gitController = controller;
@@ -72,56 +69,33 @@ public class MetricsCalculatorController {
         boolean inMultiLineComment = false;
 
         for (int i = 0; i < length; i++) {
-            char currentChar = code.charAt(i);
 
             if (inSingleLineComment) {
-                i = handleSingleLineComment(code, result, i);
-                inSingleLineComment = false;
+                if (code.charAt(i) == '\n') {
+                    inSingleLineComment = false;
+                    result.append(code.charAt(i));
+                }
+
             } else if (inMultiLineComment) {
-                i = handleMultiLineComment(code, i);
-                inMultiLineComment = (i < length && code.charAt(i) != '/');
+                if (i < length - 1 && code.charAt(i) == '*' && code.charAt(i + 1) == '/') {
+                    inMultiLineComment = false;
+                    i++;
+                }
             } else {
-                if (isStartOfSingleLineComment(code, i)) {
+                if (i < length - 1 && code.charAt(i) == '/' && code.charAt(i + 1) == '/') {
                     inSingleLineComment = true;
                     i++;
-                } else if (isStartOfMultiLineComment(code, i)) {
+                } else if (i < length - 1 && code.charAt(i) == '/' && code.charAt(i + 1) == '*') {
                     inMultiLineComment = true;
                     i++;
                 } else {
-                    result.append(currentChar);
+                    result.append(code.charAt(i));
                 }
             }
         }
 
         return result.toString();
     }
-
-    private static boolean isStartOfSingleLineComment(String code, int index) {
-        return index < code.length() - 1 && code.charAt(index) == '/' && code.charAt(index + 1) == '/';
-    }
-
-    private static boolean isStartOfMultiLineComment(String code, int index) {
-        return index < code.length() - 1 && code.charAt(index) == '/' && code.charAt(index + 1) == '*';
-    }
-
-    private static int handleSingleLineComment(String code, StringBuilder result, int index) {
-        while (index < code.length() && code.charAt(index) != '\n') {
-            index++;
-        }
-        if (index < code.length()) {
-            result.append('\n');
-        }
-        return index;
-    }
-
-    private static int handleMultiLineComment(String code, int index) {
-        while (index < code.length() - 1 && !(code.charAt(index) == '*' && code.charAt(index + 1) == '/')) {
-            index++;
-        }
-        return index + 1;
-    }
-
-
 
     private void calculateCyclomaticComplexity() {
 
@@ -149,7 +123,7 @@ public class MetricsCalculatorController {
         };
 
         for(JavaClass javaClass : javaClassList) {
-            String javaClassCode = removeComments(javaClass.getFileContent());
+            String javaClassCode = javaClass.getFileContent();
             int complexity = 1;
 
             for(String pattern : controlStructures){
@@ -219,7 +193,7 @@ public class MetricsCalculatorController {
         for (JavaClass javaClass : javaClassList) {
 
             int totalLoc = 0;
-            String content = javaClass.getFileContent();
+            String content = removeComments(javaClass.getFileContent());
 
             String[] lines = content.split("\n");
 
@@ -232,7 +206,5 @@ public class MetricsCalculatorController {
             javaClass.setLoc(totalLoc);
         }
     }
-
-
 }
 
