@@ -65,38 +65,43 @@ public class MetricsCalculatorController {
     public static String removeComments(String code) {
         StringBuilder result = new StringBuilder();
         int length = code.length();
-        boolean inSingleLineComment = false;
-        boolean inMultiLineComment = false;
         int i = 0;
 
         while (i < length) {
-
-            if (inSingleLineComment) {
-                if (code.charAt(i) == '\n') {
-                    inSingleLineComment = false;
-                    result.append(code.charAt(i));
-                }
-
-            } else if (inMultiLineComment) {
-                if (i < length - 1 && code.charAt(i) == '*' && code.charAt(i + 1) == '/') {
-                    inMultiLineComment = false;
-                    i++;
-                }
+            if (isSingleLineCommentStart(code, i)) {
+                i = skipSingleLineComment(code, i);
+            } else if (isMultiLineCommentStart(code, i)) {
+                i = skipMultiLineComment(code, i);
             } else {
-                if (i < length - 1 && code.charAt(i) == '/' && code.charAt(i + 1) == '/') {
-                    inSingleLineComment = true;
-                    i++;
-                } else if (i < length - 1 && code.charAt(i) == '/' && code.charAt(i + 1) == '*') {
-                    inMultiLineComment = true;
-                    i++;
-                } else {
-                    result.append(code.charAt(i));
-                }
+                result.append(code.charAt(i));
             }
             i++;
         }
 
         return result.toString();
+    }
+
+    private static boolean isSingleLineCommentStart(String code, int i) {
+        return i < code.length() - 1 && code.charAt(i) == '/' && code.charAt(i + 1) == '/';
+    }
+
+    private static boolean isMultiLineCommentStart(String code, int i) {
+        return i < code.length() - 1 && code.charAt(i) == '/' && code.charAt(i + 1) == '*';
+    }
+
+    private static int skipSingleLineComment(String code, int i) {
+        while (i < code.length() && code.charAt(i) != '\n') {
+            i++;
+        }
+        return i;
+    }
+
+    private static int skipMultiLineComment(String code, int i) {
+        i += 2;
+        while (i < code.length() - 1 && !(code.charAt(i) == '*' && code.charAt(i + 1) == '/')) {
+            i++;
+        }
+        return i + 1;
     }
 
     private void calculateCyclomaticComplexity() {
@@ -131,12 +136,15 @@ public class MetricsCalculatorController {
             for(String pattern : controlStructures){
                 complexity += countMatches(javaClassCode, pattern);
             }
+
             for(String pattern : booleanConditions){
                 complexity += countMatches(javaClassCode, pattern);
             }
+
             for(String pattern : exceptionStructures){
                 complexity += countMatches(javaClassCode, pattern);
             }
+
             javaClass.setCyclomaticComplexity(complexity);
 
         }
@@ -191,21 +199,9 @@ public class MetricsCalculatorController {
     }
 
     private void calculateLoc() {
-
         for (JavaClass javaClass : javaClassList) {
-
-            int totalLoc = 0;
-            String content = javaClass.getFileContent();
-
-            String[] lines = content.split("\n");
-
-            for (String line : lines) {
-                String trimmedLine = line.trim();
-                if (!trimmedLine.isEmpty()) {
-                    totalLoc++;
-                }
-            }
-            javaClass.setLoc(totalLoc);
+            String[] size = javaClass.getFileContent().split("\r\n|\r|\n");
+            javaClass.setLoc(size.length);
         }
     }
 }
