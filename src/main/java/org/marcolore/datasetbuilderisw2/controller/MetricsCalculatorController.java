@@ -68,7 +68,7 @@ public class MetricsCalculatorController {
         boolean inSingleLineComment = false;
         boolean inMultiLineComment = false;
         int i = 0;
-        
+
         while (i < length) {
 
             if (inSingleLineComment) {
@@ -125,7 +125,7 @@ public class MetricsCalculatorController {
         };
 
         for(JavaClass javaClass : javaClassList) {
-            String javaClassCode = javaClass.getFileContent();
+            String javaClassCode = removeComments(javaClass.getFileContent());
             int complexity = 1;
 
             for(String pattern : controlStructures){
@@ -195,7 +195,7 @@ public class MetricsCalculatorController {
         for (JavaClass javaClass : javaClassList) {
 
             int totalLoc = 0;
-            String content = removeComments(javaClass.getFileContent());
+            String content = javaClass.getFileContent();
 
             String[] lines = content.split("\n");
 
