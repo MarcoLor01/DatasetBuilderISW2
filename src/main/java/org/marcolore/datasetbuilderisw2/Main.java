@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 public class Main {
 
-
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
     private static String initialPath;
 
@@ -85,6 +84,7 @@ public class Main {
         WekaController wekaController = new WekaController(projectName, iterationNumber - 1, classWithMetrics);
 
         wekaController.classify();
+
         }
 
 

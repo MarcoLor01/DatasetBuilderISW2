@@ -123,7 +123,7 @@ public class CsvUtility {
                 csvWriter.append(String.valueOf(acumeClass.getInstanceId())).append(",").
                         append(String.valueOf(acumeClass.getSize())).append(",").
                         append(String.valueOf(acumeClass.getPredictedClassProbability())).append(",")
-                        .append(String.valueOf(acumeClass.getSize())).
+                        .append(String.valueOf(acumeClass.getActualClassLabel())).
                         append("\n");
             }
 

@@ -49,18 +49,6 @@ public class WekaController {
             Instances trainingSet = WekaUtility.convertData(project, i, "Training");
             Instances testingSet = WekaUtility.convertData(project, i, "Testing");
 
-            if(trainingSet != null) {
-                trainingSet.setClassIndex(trainingSet.numAttributes() - 1);
-            } else {
-                logger.error("Training set null");
-            }
-
-            if(testingSet != null){
-                testingSet.setClassIndex(testingSet.numAttributes() - 1);
-            } else {
-                logger.error("Testing set null");
-            }
-
             List<ConfiguredClassifier> configuredClassifiers = setConfiguredClassifiers(trainingSet);
             evaluate(trainingSet, testingSet, configuredClassifiers, modelEvaluationList, i);
 
