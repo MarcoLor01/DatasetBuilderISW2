@@ -1,14 +1,17 @@
 package org.marcolore.datasetbuilderisw2.utility;
 
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.json.JSONArray;
 import org.marcolore.datasetbuilderisw2.model.JavaClass;
 import org.marcolore.datasetbuilderisw2.model.Release;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.text.SimpleDateFormat;
 
 public class ReleaseUtility {
 
@@ -85,6 +88,7 @@ public class ReleaseUtility {
     }
 
     public static List<Release> removeHalfReleases(List<Release> releases) {
+
         int halfReleasesNumber = releases.size() / 2;
         return new ArrayList<>(releases.subList(0, halfReleasesNumber));
     }
@@ -116,5 +120,4 @@ public class ReleaseUtility {
         );
         return testingClassList;
     }
-
 }

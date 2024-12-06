@@ -15,15 +15,6 @@ public class TicketUtility {
         throw new IllegalStateException("Utility class");
     }
 
-    public static void checkTicketValidity(List<Ticket> tickets, List<Release> releases) {
-
-        tickets.removeIf(ticket -> ticket.getOpeningVersion() == null || ticket.getFixedVersion() == null
-                || (ticket.getOpeningVersion().getReleaseDate().isAfter(ticket.getFixedVersion().getReleaseDate()))
-                || (ticket.getOpeningVersion().getReleaseDate().isEqual(releases.get(0).getReleaseDate()))
-                || (ticket.getOpeningVersion().getOldIdRelease().equals(releases.get(0).getOldIdRelease())));
-
-    }
-
 
     public static Ticket checkTicketValidityAndCreate(String key, List<Release> releases, Release injectedVersion, Release openingVersion, Release fixedVersion, List<Release> affectedRelease) {
 

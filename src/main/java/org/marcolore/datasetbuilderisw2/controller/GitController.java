@@ -270,7 +270,7 @@ public class GitController implements AutoCloseable {
         return treeParser;
     }
 
-    public Release findReleaseFromCommit(RevCommit extractedCommit, List<Release> releaseList) {
+    public static Release findReleaseFromCommit(RevCommit extractedCommit, List<Release> releaseList) {
         LocalDateTime commitDate = extractedCommit.getCommitterIdent().getWhen()
                 .toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         Release previousRelease = null;
@@ -291,4 +291,5 @@ public class GitController implements AutoCloseable {
             git.close();
         }
     }
+
 }

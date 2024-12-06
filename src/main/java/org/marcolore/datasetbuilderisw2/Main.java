@@ -34,7 +34,6 @@ public class Main {
         takeCorrectPath();
 
         List<JavaClass> javaClassList;
-        List<Release> releaseList;
 
         JiraController jiraController = new JiraController(projectName);
 
@@ -46,10 +45,6 @@ public class Main {
 
         //Now we have all the tickets and releases, but many tickets are without an injected version
         ProportionController.insertIV(tickets, releases);
-        TicketUtility.checkTicketValidity(tickets, releases);
-
-        //Tickets are now both correct and complete
-        logger.info("Validated {} tickets", tickets.size());
 
         // Setting the repo path
         String path = initialPath + projectName.toLowerCase();
@@ -65,11 +60,11 @@ public class Main {
         logger.info("Linked commits to tickets");
 
         //Now we take only the first half releases
-        releaseList = ReleaseUtility.removeHalfReleases(releases);
-        logger.info("Actual number of releases {}", releaseList.size());
+        List<Release> halfReleaseList = ReleaseUtility.removeHalfReleases(releases);
+        logger.info("Actual number of releases {}", halfReleaseList.size());
 
         //Now we need to extract our Java classes
-        javaClassList = gitController.retrieveClasses(releaseList);
+        javaClassList = gitController.retrieveClasses(halfReleaseList);
         logger.info("Extracted {} classes", javaClassList.size());
 
         //Now we need to compute the metrics
@@ -78,7 +73,7 @@ public class Main {
         logger.info("Metrics Calculated");
 
         //Creation of datasets
-        int iterationNumber = createDatasets(classWithMetrics, releaseList, tickets, gitController, metricsCalculator, projectName);
+        int iterationNumber = createDatasets(classWithMetrics, halfReleaseList.size(), releases, tickets, gitController, metricsCalculator, projectName);
 
         //Now we want to use this Data with Weka
         WekaController wekaController = new WekaController(projectName, iterationNumber - 1, classWithMetrics);
@@ -89,6 +84,7 @@ public class Main {
 
 
     public static int createDatasets(List<JavaClass> javaClassList,
+                                      int halfReleaseListDim,
                                       List<Release> releaseList,
                                       List<Ticket> tickets,
                                       GitController gitController,
@@ -103,21 +99,23 @@ public class Main {
 
         int numberOfTraining = 1;
 
-        for(int i=firstRelease;i<=(releaseList.size());i++){
+        for(int i=firstRelease; i<=halfReleaseListDim; i++){
+            int finalI = i;
 
             //Now we use the first release as the test set
+
             List<JavaClass> trainingClassList = new ArrayList<>(javaClassList);
-            ReleaseUtility.checkReleaseId(trainingClassList, i);
-
-            List<Ticket> trainingTickets = TicketUtility.checkFixedVersion(tickets, i);
-
-            List<JavaClass> testingClassList = ReleaseUtility.getJavaClassesFromRelease(javaClassList, i);
+            ReleaseUtility.checkReleaseId(trainingClassList, finalI);
+            List<Ticket> trainingTickets = TicketUtility.checkFixedVersion(tickets, finalI);
+            List<JavaClass> testingClassList = ReleaseUtility.getJavaClassesFromRelease(javaClassList, finalI);
 
             ClassUtility.setBuggyOrNot(trainingTickets, trainingClassList, gitController, releaseList);
             metricsCalculatorController.calculateNumberFix(trainingClassList);
 
             ClassUtility.setBuggyOrNot(tickets, testingClassList, gitController, releaseList);
             metricsCalculatorController.calculateNumberFix(testingClassList);
+
+            trainingClassList.removeIf(javaClass -> javaClass.getRelease().getId() == finalI - 1 && !javaClass.isBuggy());
 
             writeDatasets(projectName, numberOfTraining, trainingClassList, testingClassList);
 
@@ -129,6 +127,7 @@ public class Main {
 
 
     private static void writeDatasets(String projectName, int numberOfTraining, List<JavaClass> trainingClassList, List<JavaClass> testingClassList) throws IOException {
+
         CsvUtility.writeCsvFile(trainingClassList, "Training", numberOfTraining, projectName);
         CsvUtility.writeCsvFile(testingClassList, "Testing", numberOfTraining, projectName);
         ArffUtility.createArff(trainingClassList, "Training", numberOfTraining, projectName);

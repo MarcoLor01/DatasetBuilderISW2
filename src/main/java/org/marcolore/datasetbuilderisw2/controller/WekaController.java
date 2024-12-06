@@ -27,6 +27,8 @@ import weka.filters.supervised.instance.SMOTE;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.marcolore.datasetbuilderisw2.utility.CsvUtility.writeWekaFinalFile;
+
 public class WekaController {
     private final String project;
     private final int iteration;
@@ -51,8 +53,8 @@ public class WekaController {
 
             List<ConfiguredClassifier> configuredClassifiers = setConfiguredClassifiers(trainingSet);
             evaluate(trainingSet, testingSet, configuredClassifiers, modelEvaluationList, i);
-
         }
+        writeWekaFinalFile(project, modelEvaluationList);
     }
 
     public void evaluate(Instances trainingSet, Instances testingSet, List<ConfiguredClassifier> configuredClassifiers, List<ModelEvaluation> modelEvaluationList, int iteration) throws Exception {
@@ -70,8 +72,8 @@ public class WekaController {
                 double percentOfTraining = 100.0 * trainingSet.numInstances() / (trainingSet.numInstances() + testingSet.numInstances());
 
                 ModelEvaluation modelEvaluation = new ModelEvaluation(project, iteration, readyClassifier, evaluation,
-                        isFeatureSelection ? "Yes" : "No", isBalancingMethod ? "Yes" : "No",
-                        isCostSensitive ? "Yes" : "No");
+                        isFeatureSelection ? "Best First" : "none", isBalancingMethod ? "SMOTE" : "none",
+                        isCostSensitive ? "Sensitive Threshold" : "none");
                 modelEvaluation.setTrainingPercent(percentOfTraining);
 
                 modelEvaluationList.add(modelEvaluation);

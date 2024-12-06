@@ -1,9 +1,12 @@
 package org.marcolore.datasetbuilderisw2.utility;
 
 import org.marcolore.datasetbuilderisw2.model.AcumeClass;
+import org.marcolore.datasetbuilderisw2.model.EvaluationMetrics;
 import org.marcolore.datasetbuilderisw2.model.JavaClass;
+import org.marcolore.datasetbuilderisw2.model.ModelEvaluation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import weka.gui.simplecli.Java;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -48,7 +51,7 @@ public class CsvUtility {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(csvFile))) {
             writer.write("className,loc,authorsNumber,revisionsNumber,touchedLoc,totalAddedLines,averageAddedLines,maxAddedLines,totalChurn,maxChurn,numberFix,cyclomaticComplexity,averageChurn,daysBetweenCommits,buggy");
             writer.newLine();
-
+            //VERIFICA SE CI SONO DOPPIONI ALL'interno del training o testing, il testing ancora non controllato
             for (JavaClass javaClass : javaClassList) {
                 String line = String.format("\"%s\",%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%b",
                         escapeCsv(javaClass.getClassName()),
@@ -131,6 +134,41 @@ public class CsvUtility {
 
         } catch (IOException e) {
             logger.error("Error in the writing of the file: {}", e.getMessage());
+        }
+    }
+
+    public static void writeWekaFinalFile(String project, List<ModelEvaluation> evaluations) {
+        String fullPath = "src/main/dataset/finalWekaResult/" + project + "finalResult" + ".csv";
+
+        try (FileWriter writer = new FileWriter(fullPath)) {
+
+            writer.append("Iteration,TrainingPercent,ClassifierName,FeatureSelection,Balancing,CostSensitive,");
+            writer.append("Precision,Recall,AUC,Kappa,F1,TP,FP,TN,FN,Cost\n");
+
+            for (ModelEvaluation evaluation : evaluations) {
+
+                writer.append(String.valueOf(evaluation.getIteration())).append(",");
+                writer.append(String.valueOf(evaluation.getTrainingPercent())).append(",");
+                writer.append(WekaUtility.getClassifierName(evaluation.getClassifier())).append(",");
+                writer.append(evaluation.getFeatureSelection()).append(",");
+                writer.append(evaluation.getBalancingMethod()).append(",");
+                writer.append(evaluation.getCostSensitive()).append(",");
+
+                EvaluationMetrics metrics = evaluation.getEvaluationMetrics();
+                writer.append(String.valueOf(metrics.getPrecision())).append(",");
+                writer.append(String.valueOf(metrics.getRecall())).append(",");
+                writer.append(String.valueOf(metrics.getAuc())).append(",");
+                writer.append(String.valueOf(metrics.getKappa())).append(",");
+                writer.append(String.valueOf(metrics.getF1())).append(",");
+                writer.append(String.valueOf(metrics.getTp())).append(",");
+                writer.append(String.valueOf(metrics.getFp())).append(",");
+                writer.append(String.valueOf(metrics.getTn())).append(",");
+                writer.append(String.valueOf(metrics.getFn())).append(",");
+                writer.append(String.valueOf(metrics.getCost())).append("\n");
+            }
+            logger.info("Created final file for weka: {}", fullPath);
+        } catch (IOException e) {
+            logger.error("Errore: {}", e.getMessage());
         }
     }
 }

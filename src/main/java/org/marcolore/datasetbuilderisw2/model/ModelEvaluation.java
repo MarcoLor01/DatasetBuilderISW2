@@ -29,4 +29,36 @@ public class ModelEvaluation {
     public void setTrainingPercent(double trainingPercent) {
         this.trainingPercent = trainingPercent;
     }
+
+    public String getProject() {
+        return project;
+    }
+
+    public int getIteration() {
+        return iteration;
+    }
+
+    public Classifier getClassifier() {
+        return classifier;
+    }
+
+    public EvaluationMetrics getEvaluationMetrics() {
+        return evaluationMetrics;
+    }
+
+    public String getFeatureSelection() {
+        return featureSelection;
+    }
+
+    public String getBalancingMethod() {
+        return balancingMethod;
+    }
+
+    public String getCostSensitive() {
+        return costSensitive;
+    }
+
+    public double getTrainingPercent() {
+        return trainingPercent;
+    }
 }

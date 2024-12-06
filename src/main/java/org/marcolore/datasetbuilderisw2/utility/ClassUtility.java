@@ -7,7 +7,6 @@ import org.marcolore.datasetbuilderisw2.model.Release;
 import org.marcolore.datasetbuilderisw2.model.Ticket;
 
 import java.io.IOException;
-import java.time.ZoneId;
 import java.util.List;
 
 public class ClassUtility {
@@ -19,16 +18,18 @@ public class ClassUtility {
 
         for(JavaClass projectClass : allProjectClasses){
             projectClass.setBuggy(false);
+
         }
+
 
         for (Ticket ticket : ticketList) {
             List<RevCommit> ticketCommitList = ticket.getCommitList();
             Release injectedVersion = ticket.getInjectedVersion();
 
             for (RevCommit commit : ticketCommitList) {
-                int releaseOfCommitId = ReleaseUtility.matchCommitsRelease(commit.getCommitterIdent().getWhen().toInstant().
-                        atZone(ZoneId.systemDefault()).toLocalDateTime(), releaseList);
-                Release releaseOfCommit = ReleaseUtility.releaseFromId(releaseList, releaseOfCommitId);
+
+                Release releaseOfCommit = GitController.findReleaseFromCommit(commit, releaseList);
+
                 List<String> modifiedClassesNames = gitController.findTouchedClassFromCommit(commit);
 
                 for (String modifiedClass : modifiedClassesNames) {
@@ -50,6 +51,7 @@ public class ClassUtility {
                 projectClass.setBuggy(true);
             }
         }
+
     }
 
     private static boolean isClassModifiedInBuggyVersion(JavaClass projectClass, String modifiedClass, Release injectedVersion, Release fixedVersion) {
