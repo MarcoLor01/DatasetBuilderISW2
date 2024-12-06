@@ -3,14 +3,12 @@ package org.marcolore.datasetbuilderisw2.utility;
 import org.json.JSONArray;
 import org.marcolore.datasetbuilderisw2.model.JavaClass;
 import org.marcolore.datasetbuilderisw2.model.Release;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class ReleaseUtility {
-    
+
     private ReleaseUtility() {
         throw new IllegalStateException("Utility class");
     }
