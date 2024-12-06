@@ -1,22 +1,16 @@
 package org.marcolore.datasetbuilderisw2.utility;
 
-import org.eclipse.jgit.revwalk.RevCommit;
 import org.json.JSONArray;
 import org.marcolore.datasetbuilderisw2.model.JavaClass;
 import org.marcolore.datasetbuilderisw2.model.Release;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.text.SimpleDateFormat;
 
 public class ReleaseUtility {
-
-    private static final Logger logger = LoggerFactory.getLogger(ReleaseUtility.class);
-
+    
     private ReleaseUtility() {
         throw new IllegalStateException("Utility class");
     }
