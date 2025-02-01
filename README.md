@@ -1,3 +1,4 @@
+[![SonarQube Cloud](https://sonarcloud.io/images/project_badges/sonarcloud-dark.svg)](https://sonarcloud.io/summary/new_code?id=MarcoLor01_BugginessPredictorISW2)
 # DatasetBuilder
 ### 🛠️ Jira | 🐙 Git | ☕ Java | 📦 Maven
 
