@@ -118,7 +118,6 @@ public class Main {
             trainingClassList.removeIf(javaClass -> javaClass.getRelease().getId() == finalI - 1 && !javaClass.isBuggy());
 
             writeDatasets(projectName, numberOfTraining, trainingClassList, testingClassList);
-
             numberOfTraining++;
 
         }
