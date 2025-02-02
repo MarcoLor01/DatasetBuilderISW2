@@ -47,6 +47,7 @@ public class JiraController {
                 releases.add(new Release(id, name, releaseDate));
             }
         }
+
         // Ordering releases based on the release date
         releases.sort(Comparator.comparing(Release::getReleaseDate));
 

@@ -51,7 +51,6 @@ public class CsvUtility {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(csvFile))) {
             writer.write("className,loc,authorsNumber,revisionsNumber,touchedLoc,totalAddedLines,averageAddedLines,maxAddedLines,totalChurn,maxChurn,numberFix,cyclomaticComplexity,averageChurn,daysBetweenCommits,buggy");
             writer.newLine();
-            //VERIFICA SE CI SONO DOPPIONI ALL'interno del training o testing, il testing ancora non controllato
             for (JavaClass javaClass : javaClassList) {
                 String line = String.format("\"%s\",%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%b",
                         escapeCsv(javaClass.getClassName()),
@@ -105,7 +104,7 @@ public class CsvUtility {
             booleanPart.append("BestFirst_");
         }
         if (isCostSensitive) {
-            booleanPart.append("SensitiveLearning_");
+            booleanPart.append("SensitiveThreshold_");
         }
         if (isBalancingMethod) {
             booleanPart.append("SMOTE_");

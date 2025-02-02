@@ -1,9 +1,13 @@
 package org.marcolore.datasetbuilderisw2.enums;
 
 public enum ProjectsNames {
-    AVRO,
-    BOOKKEEPER,
+    OPENJPA,
+    PROTON,
     SYNCOPE,
     ZOOKEEPER,
     TAJO,
 }
+
+//OPENJPA,
+//PROTON,
+//1,277856
