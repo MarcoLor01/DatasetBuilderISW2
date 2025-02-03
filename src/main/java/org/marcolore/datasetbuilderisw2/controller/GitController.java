@@ -203,6 +203,7 @@ public class GitController implements AutoCloseable {
         FileHeader fileHeader = getFileHeader(entry);
 
         for (Edit edit : fileHeader.toEditList()) {
+                        // Deleted                              //Removed
             touchedLoc += (edit.getEndA() - edit.getBeginA()) + (edit.getEndB() - edit.getBeginB());
         }
 
